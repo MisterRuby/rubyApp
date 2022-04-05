@@ -4,6 +4,9 @@ import ruby.rubyapp.board.entity.Board;
 
 import java.util.Optional;
 
+/**
+ * 게시글 서비스
+ */
 public interface BoardService {
 
     /**
@@ -13,7 +16,7 @@ public interface BoardService {
      * @param accountEmail  작성자 email
      * @return              등록된 게시글
      */
-    Board register(String title, String content, String accountEmail);
+    Board registerBoard(String title, String content, String accountEmail);
 
     /**
      * 게시글 단건 조회

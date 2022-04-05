@@ -1,19 +1,20 @@
 package ruby.rubyapp.board.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import ruby.rubyapp.account.entity.Account;
 
 import javax.persistence.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static javax.persistence.FetchType.LAZY;
 
+/**
+ * 댓글 엔티티
+ */
 @Entity
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Getter
 public class Comment {
 
     @Id
@@ -23,9 +24,7 @@ public class Comment {
     @Column(length = 1000)
     private String content;
     @Column(nullable = false)
-    private String writer;
-    @Column(nullable = false)
-    private LocalDate reportingDate;
+    private LocalDateTime reportingDate;
 
     /** 연관관계 */
     @ManyToOne(fetch = LAZY)
@@ -34,4 +33,13 @@ public class Comment {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "board_id")
     private Board board;
+
+    public Comment(String content, Board board, Account account) {
+        this.content = content;
+        this.board = board;
+        this.account = account;
+        this.reportingDate = LocalDateTime.now();
+    }
+
+    /** 비즈니스 메서드 */
 }

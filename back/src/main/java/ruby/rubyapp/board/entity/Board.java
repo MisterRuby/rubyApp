@@ -13,6 +13,9 @@ import java.util.List;
 import static javax.persistence.CascadeType.ALL;
 import static javax.persistence.FetchType.LAZY;
 
+/**
+ * 게시글 엔티티
+ */
 @Entity
 @NoArgsConstructor
 @Getter
@@ -35,11 +38,12 @@ public class Board {
     @OneToMany(mappedBy = "board", cascade = ALL)
     private List<Comment> commentList = new ArrayList<>();
 
-    /** 비즈니스 메서드 */
     public Board(String title, String content, Account account) {
         this.title = title;
         this.content = content;
         this.account = account;
         this.reportingDate = LocalDateTime.now();
     }
+
+    /** 비즈니스 메서드 */
 }

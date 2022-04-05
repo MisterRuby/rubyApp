@@ -12,8 +12,6 @@ import ruby.rubyapp.config.oauth.SessionAccount;
 @RequestMapping(value = "/board")
 public class BoardController {
 
-
-//    @GetMapping("/{pageNum}/{searchKind}")
     @GetMapping
     public void getBoards(@LoginAccount SessionAccount account)  {
         System.out.println(account.getEmail());

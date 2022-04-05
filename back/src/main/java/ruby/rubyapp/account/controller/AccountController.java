@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ruby.rubyapp.account.dto.AccountDto;
 import ruby.rubyapp.config.oauth.LoginAccount;
 import ruby.rubyapp.config.oauth.SessionAccount;
 
@@ -15,6 +14,12 @@ import java.net.URISyntaxException;
 @RestController
 public class AccountController {
 
+    /**
+     * 로그인 성공 후 메인 페이지 이동
+     * @param account       사용자 정보
+     * @return
+     * @throws URISyntaxException
+     */
     @GetMapping("/")
     public ResponseEntity login(@LoginAccount SessionAccount account) throws URISyntaxException {
         URI redirectUri = new URI("http://localhost:3000");

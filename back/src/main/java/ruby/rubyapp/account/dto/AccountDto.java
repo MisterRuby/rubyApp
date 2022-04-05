@@ -3,6 +3,9 @@ package ruby.rubyapp.account.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * 사용자 Dto
+ */
 @Setter @Getter
 public class AccountDto {
 

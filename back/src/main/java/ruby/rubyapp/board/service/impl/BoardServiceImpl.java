@@ -1,4 +1,4 @@
-package ruby.rubyapp.board.service;
+package ruby.rubyapp.board.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -6,12 +6,17 @@ import ruby.rubyapp.account.entity.Account;
 import ruby.rubyapp.account.repository.AccountRepository;
 import ruby.rubyapp.board.entity.Board;
 import ruby.rubyapp.board.repository.BoardRepository;
+import ruby.rubyapp.board.service.BoardService;
+import ruby.rubyapp.board.util.BoardValidation;
 
 import java.util.Optional;
 
+/**
+ * 게시글 서비스 구현체
+ */
 @Service
 @RequiredArgsConstructor
-public class BoardServiceImpl implements BoardService{
+public class BoardServiceImpl implements BoardService {
 
     private final AccountRepository accountRepository;
     private final BoardRepository boardRepository;
@@ -24,10 +29,8 @@ public class BoardServiceImpl implements BoardService{
      * @return              등록된 게시글
      */
     @Override
-    public Board register(String title, String content, String accountEmail) {
-        if (title == null || title.isBlank()) return new Board();
-        if (content == null || content.isBlank()) return new Board();
-        if (accountEmail == null || accountEmail.isBlank()) return new Board();
+    public Board registerBoard(String title, String content, String accountEmail) {
+        if (BoardValidation.validateRegisterBoard (title, content, accountEmail)) return new Board();
 
         Optional<Account> optionalAccount = accountRepository.findByEmail(accountEmail);
 

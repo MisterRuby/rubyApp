@@ -1,53 +1,15 @@
 package ruby.rubyapp.board.service;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.annotation.Transactional;
-import ruby.rubyapp.account.entity.Account;
-import ruby.rubyapp.account.entity.AccountRole;
-import ruby.rubyapp.account.repository.AccountRepository;
+import ruby.rubyapp.BoardBaseTest;
 import ruby.rubyapp.board.entity.Board;
 
-import javax.persistence.EntityManager;
-import java.util.Optional;
-
-
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
-@ActiveProfiles("test")
-@Transactional
-@Rollback(value = false)
-class BoardServiceImplTest {
-
-    @Autowired
-    EntityManager em;
-    @Autowired
-    AccountRepository accountRepository;
-    @Autowired
-    BoardService boardService;
-
-    @BeforeEach
-    public void setUp(){
-
-        for (int i = 1; i <= 5; i++) {
-            String name = "test" + i;
-            String email = name + "@naver.com";
-            Account account = Account.builder()
-                    .email(email)
-                    .name(name)
-                    .role(AccountRole.USER)
-                    .build();
-            accountRepository.save(account);
-        }
-    }
+/**
+ * 게시글 테스트
+ */
+class BoardServiceImplTest extends BoardBaseTest {
 
     @Test
     @DisplayName("제목, 내용, 사용자 정보가 모두 있을 때 게시글 등록 성공")
@@ -58,13 +20,13 @@ class BoardServiceImplTest {
         String email = "test1@naver.com";
 
         // 게시글 저장
-        Board board = boardService.register(title, content, email);
+        Board savedBoard = boardService.registerBoard(title, content, email);
 
         // 저장한 게시글의 id로 조회
-        Optional<Board> board1 = boardService.getBoard(board.getId());
-        
+        Board searchBoard = boardService.getBoard(savedBoard.getId()).get();
+
         // 저장된 게시글과 조회한 게시글 확인
-        Assertions.assertThat(board).isEqualTo(board1.get());
+        Assertions.assertThat(savedBoard).isEqualTo(searchBoard);
     }
 
     @Test
@@ -76,7 +38,7 @@ class BoardServiceImplTest {
         String email = "test1@naver.com";
 
         // 게시글 저장
-        Board board = boardService.register(title, content, email);
+        Board board = boardService.registerBoard(title, content, email);
 
         // 저장된 게시글과 조회한 게시글 확인
         Assertions.assertThat(board.getId()).isNull();
@@ -91,7 +53,7 @@ class BoardServiceImplTest {
         String email = "test1@naver.com";
 
         // 게시글 저장
-        Board board = boardService.register(title, content, email);
+        Board board = boardService.registerBoard(title, content, email);
 
         // 저장된 게시글과 조회한 게시글 확인
         Assertions.assertThat(board.getId()).isNull();
@@ -106,7 +68,7 @@ class BoardServiceImplTest {
         String email = "   ";
 
         // 게시글 저장
-        Board board = boardService.register(title, content, email);
+        Board board = boardService.registerBoard(title, content, email);
 
         // 저장된 게시글과 조회한 게시글 확인
         Assertions.assertThat(board.getId()).isNull();
