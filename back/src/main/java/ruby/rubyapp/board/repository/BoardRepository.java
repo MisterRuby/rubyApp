@@ -6,5 +6,6 @@ import ruby.rubyapp.board.entity.Board;
 /**
  * 게시글 Repository
  */
-public interface BoardRepository extends JpaRepository<Board, Long> {
+public interface BoardRepository extends JpaRepository<Board, Long>, BoardRepositoryCustom {
+
 }
