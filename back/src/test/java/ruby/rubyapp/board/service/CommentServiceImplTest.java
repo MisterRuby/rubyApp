@@ -23,7 +23,7 @@ class CommentServiceImplTest extends BoardBaseTest {
         String email = "test1@naver.com";
 
         // 댓글 저장
-        Comment savedComment = commentService.registerComment(content, email, board.getId());
+        Comment savedComment = commentService.addComment(content, email, board.getId());
         // 저장된 댓글 조회
         Comment searchComment = commentRepository.findById(savedComment.getId()).get();
 
@@ -41,7 +41,7 @@ class CommentServiceImplTest extends BoardBaseTest {
         String email = "test1@naver.com";
 
         // 댓글 저장
-        Comment comment = commentService.registerComment(content, email, board.getId());
+        Comment comment = commentService.addComment(content, email, board.getId());
 
         // 저장된 댓글 조회
         Assertions.assertThat(comment.getId()).isNull();
@@ -56,7 +56,7 @@ class CommentServiceImplTest extends BoardBaseTest {
         String email = null;
 
         // 댓글 저장
-        Comment comment = commentService.registerComment(content, email, board.getId());
+        Comment comment = commentService.addComment(content, email, board.getId());
 
         // 저장된 댓글 조회
         Assertions.assertThat(comment.getId()).isNull();
@@ -71,7 +71,7 @@ class CommentServiceImplTest extends BoardBaseTest {
         String email = "test1@naver.com";
 
         // 댓글 저장
-        Comment comment = commentService.registerComment(content, email, board.getId());
+        Comment comment = commentService.addComment(content, email, board.getId());
 
         // 저장된 댓글 조회
         Assertions.assertThat(comment.getId()).isNull();

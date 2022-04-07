@@ -35,7 +35,7 @@ public class Board {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "account_id")
     private Account account;
-    @OneToMany(mappedBy = "board", cascade = ALL)
+    @OneToMany(mappedBy = "board")
     private List<Comment> commentList = new ArrayList<>();
 
     public Board(String title, String content, Account account) {

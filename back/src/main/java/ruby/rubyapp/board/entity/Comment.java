@@ -7,6 +7,7 @@ import ruby.rubyapp.account.entity.Account;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+import static javax.persistence.CascadeType.*;
 import static javax.persistence.FetchType.LAZY;
 
 /**
@@ -24,6 +25,8 @@ public class Comment {
     @Column(length = 1000)
     private String content;
     @Column(nullable = false)
+    private String writer;
+    @Column(nullable = false)
     private LocalDateTime reportingDate;
 
     /** 연관관계 */
@@ -36,6 +39,7 @@ public class Comment {
 
     public Comment(String content, Board board, Account account) {
         this.content = content;
+        this.writer = account.getName();
         this.board = board;
         this.account = account;
         this.reportingDate = LocalDateTime.now();

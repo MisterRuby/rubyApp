@@ -14,5 +14,5 @@ public interface CommentService {
      * @param boardId       게시글 id
      * @return              등록된 댓글
      */
-    Comment registerComment(String content, String accountEmail, Long boardId);
+    Comment addComment(String content, String accountEmail, Long boardId);
 }

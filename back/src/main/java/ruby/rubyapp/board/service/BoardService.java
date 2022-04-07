@@ -18,11 +18,11 @@ public interface BoardService {
      * @param accountEmail  작성자 email
      * @return              등록된 게시글
      */
-    Board registerBoard(String title, String content, String accountEmail);
+    Board addBoard(String title, String content, String accountEmail);
 
     /**
-     * 게시글 단건 조회
-     * @param boardId
+     * 게시글 단건, 연관된 댓글목록 조회
+     * @param boardId       게시글 id
      * @return
      */
     Optional<Board> getBoard(Long boardId);

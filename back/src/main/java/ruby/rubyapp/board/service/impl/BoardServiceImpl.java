@@ -36,7 +36,7 @@ public class BoardServiceImpl implements BoardService {
      * @return              등록된 게시글
      */
     @Override
-    public Board registerBoard(String title, String content, String accountEmail) {
+    public Board addBoard(String title, String content, String accountEmail) {
         if (BoardValidation.validateRegisterBoard (title, content, accountEmail)) return new Board();
 
         Optional<Account> optionalAccount = accountRepository.findByEmail(accountEmail);
@@ -50,14 +50,14 @@ public class BoardServiceImpl implements BoardService {
     }
 
     /**
-     * 게시글 단건 조회
-     * @param boardId   게시글 id
-     * @return          게시글 단건
+     * 게시글 단건, 연관된 댓글목록 조회
+     * @param boardId       게시글 id
+     * @return
      */
     @Override
     @Transactional(readOnly = true)
     public Optional<Board> getBoard(Long boardId) {
-        return boardRepository.findById(boardId);
+        return boardRepository.getBoard(boardId);
     }
 
 
@@ -69,6 +69,7 @@ public class BoardServiceImpl implements BoardService {
      * @return
      */
     @Override
+    @Transactional(readOnly = true)
     public Page<Board> getBoardList(SearchType searchType, String searchWord, int pageNum) {
         int PAGE_PER_MAX_COUNT = 10;
         Pageable pageable = PageRequest.of(pageNum, PAGE_PER_MAX_COUNT, Sort.by(searchType.getValue()).descending());

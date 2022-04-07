@@ -26,8 +26,8 @@ import javax.persistence.EntityManager;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @ActiveProfiles("test")
-@Disabled
-@Transactional
+//@Disabled
+//@Transactional
 public class BoardBaseTest {
     @Autowired
     protected EntityManager em;

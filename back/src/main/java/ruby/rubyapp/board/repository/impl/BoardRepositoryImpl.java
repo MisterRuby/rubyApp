@@ -6,16 +6,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import ruby.rubyapp.account.entity.QAccount;
 import ruby.rubyapp.board.entity.Board;
 import ruby.rubyapp.board.entity.QBoard;
 import ruby.rubyapp.board.entity.SearchType;
 import ruby.rubyapp.board.repository.BoardRepositoryCustom;
 
 import java.util.List;
+import java.util.Optional;
 
 import static ruby.rubyapp.account.entity.QAccount.*;
 import static ruby.rubyapp.board.entity.QBoard.*;
+import static ruby.rubyapp.board.entity.QComment.*;
 
 @RequiredArgsConstructor
 public class BoardRepositoryImpl implements BoardRepositoryCustom {
@@ -32,7 +33,7 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
     @Override
     public Page<Board> getBoardList (SearchType searchType, String searchWord, Pageable pageable) {
         // 전체 목록 수
-        Long size = queryFactory.select(board.count())
+        Long size = queryFactory.select(  board.count())
                 .from(board)
                 .leftJoin(board.account, account)
                 .where(getBoardSearchCondition(searchType, searchWord))
@@ -50,7 +51,22 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
         return new PageImpl<>(boardList, pageable, size);
     }
 
+    /**
+     * 게시글 단건, 연관된 댓글목록 조회
+     * @param boardId       게시글 id
+     * @return
+     */
+    @Override
+    public Optional<Board> getBoard(Long boardId) {
+        Board board = queryFactory.selectFrom(QBoard.board)
+                .leftJoin(QBoard.board.commentList, comment).fetchJoin()
+                .leftJoin(QBoard.board.account, account).fetchJoin()
+                .where(QBoard.board.id.eq(boardId))
+                .distinct()
+                .fetchOne();
 
+        return Optional.ofNullable(board);
+    }
 
     /**
      * 게시글 검색조건 설정
@@ -59,7 +75,6 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
      * @return
      */
     public BooleanExpression getBoardSearchCondition(SearchType searchType, String searchWord) {
-
         if (searchType.equals(SearchType.CONTENT)) {
             return board.content.contains(searchWord);
         }

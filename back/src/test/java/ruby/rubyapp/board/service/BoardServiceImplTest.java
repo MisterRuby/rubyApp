@@ -7,6 +7,8 @@ import ruby.rubyapp.BoardBaseTest;
 import ruby.rubyapp.board.entity.Board;
 import ruby.rubyapp.board.entity.SearchType;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -23,7 +25,7 @@ class BoardServiceImplTest extends BoardBaseTest {
         String email = "test1@naver.com";
 
         // 게시글 저장
-        Board savedBoard = boardService.registerBoard(title, content, email);
+        Board savedBoard = boardService.addBoard(title, content, email);
 
         // 저장한 게시글의 id로 조회
 //        Board searchBoard = boardService.getBoard(savedBoard.getId()).get();
@@ -43,7 +45,7 @@ class BoardServiceImplTest extends BoardBaseTest {
         String email = "test1@naver.com";
 
         // 게시글 저장
-        Board board = boardService.registerBoard(title, content, email);
+        Board board = boardService.addBoard(title, content, email);
 
         // 저장된 게시글과 조회한 게시글 확인
         assertThat(board.getId()).isNull();
@@ -58,7 +60,7 @@ class BoardServiceImplTest extends BoardBaseTest {
         String email = "test1@naver.com";
 
         // 게시글 저장
-        Board board = boardService.registerBoard(title, content, email);
+        Board board = boardService.addBoard(title, content, email);
 
         // 저장된 게시글과 조회한 게시글 확인
         assertThat(board.getId()).isNull();
@@ -73,7 +75,7 @@ class BoardServiceImplTest extends BoardBaseTest {
         String email = "   ";
 
         // 게시글 저장
-        Board board = boardService.registerBoard(title, content, email);
+        Board board = boardService.addBoard(title, content, email);
 
         // 저장된 게시글과 조회한 게시글 확인
         assertThat(board.getId()).isNull();
@@ -189,7 +191,36 @@ class BoardServiceImplTest extends BoardBaseTest {
 
         assertThat(boardList.getTotalElements()).isEqualTo(0);
     }
-    
+
     // TODO - 게시글 단건 조회 구현
-    
+
+    @Test
+    @DisplayName("게시글 단건 조회")
+    public void getBoard() {
+        SearchType searchType = SearchType.TITLE;
+        String searchWord = "게시글110";
+        int pageNum = 0;
+
+        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Long boardId = boardList.getContent().get(0).getId();
+
+        em.clear();             // 영속성 컨텍스트 비우기
+
+        System.out.println("===========조회 시작==============");
+
+        Board board = boardService.getBoard(boardId).get();
+        assertThat(board.getId()).isEqualTo(boardId);
+        assertThat(board.getCommentList().size()).isEqualTo(5);
+        assertThat(board.getCommentList().get(3).getWriter()).isEqualTo("test4");
+        assertThat(board.getAccount().getName()).isEqualTo("test110");
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 게시글 ID로 조회")
+    public void failGetBoard() {
+        Long boardId = 123124515L;
+        Optional<Board> boardOptional = boardService.getBoard(boardId);
+
+        assertThat(boardOptional.isEmpty()).isTrue();
+    }
 }

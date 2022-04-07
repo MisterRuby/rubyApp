@@ -5,6 +5,8 @@ import org.springframework.data.domain.Pageable;
 import ruby.rubyapp.board.entity.Board;
 import ruby.rubyapp.board.entity.SearchType;
 
+import java.util.Optional;
+
 public interface BoardRepositoryCustom {
 
     /**
@@ -15,4 +17,11 @@ public interface BoardRepositoryCustom {
      * @return
      */
     Page<Board> getBoardList (SearchType searchType, String searchWord, Pageable pageable);
+
+    /**
+     * 게시글 단건, 연관된 댓글목록 조회
+     * @param boardId       게시글 id
+     * @return
+     */
+    Optional<Board> getBoard (Long boardId);
 }

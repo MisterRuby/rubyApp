@@ -32,7 +32,7 @@ public class CommentServiceImpl implements CommentService {
      * @return 등록된 댓글
      */
     @Override
-    public Comment registerComment(String content, String accountEmail, Long boardId) {
+    public Comment addComment(String content, String accountEmail, Long boardId) {
         if (BoardValidation.validateRegisterComment(content, accountEmail, boardId)) return new Comment();
 
         Optional<Account> optionalAccount = accountRepository.findByEmail(accountEmail);
