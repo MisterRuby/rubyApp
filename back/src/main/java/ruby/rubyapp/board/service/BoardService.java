@@ -36,6 +36,13 @@ public interface BoardService {
      */
     Page<Board> getBoardList(SearchType searchType, String searchWord, int pageNum);
 
-
-
+    /**
+     * 게시글 수정
+     * @param boardId       게시글 id
+     * @param title         게시글 제목
+     * @param content       게시글 내용
+     * @param email         접속자 email
+     * @return
+     */
+    Optional<Board>  updateBoard(Long boardId, String title, String content, String email);
 }

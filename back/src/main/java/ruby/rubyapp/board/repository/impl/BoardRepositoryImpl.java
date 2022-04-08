@@ -7,15 +7,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import ruby.rubyapp.board.entity.Board;
-import ruby.rubyapp.board.entity.QBoard;
+import ruby.rubyapp.board.entity.QComment;
 import ruby.rubyapp.board.entity.SearchType;
 import ruby.rubyapp.board.repository.BoardRepositoryCustom;
 
 import java.util.List;
 import java.util.Optional;
 
-import static ruby.rubyapp.account.entity.QAccount.*;
-import static ruby.rubyapp.board.entity.QBoard.*;
+import static ruby.rubyapp.account.entity.QAccount.account;
+import static ruby.rubyapp.board.entity.QBoard.board;
 import static ruby.rubyapp.board.entity.QComment.*;
 
 @RequiredArgsConstructor
@@ -52,20 +52,19 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
     }
 
     /**
-     * 게시글 단건, 연관된 댓글목록 조회
+     * 게시글 단건 조회
      * @param boardId       게시글 id
      * @return
      */
     @Override
     public Optional<Board> getBoard(Long boardId) {
-        Board board = queryFactory.selectFrom(QBoard.board)
-                .leftJoin(QBoard.board.commentList, comment).fetchJoin()
-                .leftJoin(QBoard.board.account, account).fetchJoin()
-                .where(QBoard.board.id.eq(boardId))
-                .distinct()
+        Board findBoard = queryFactory.selectFrom(board)
+                .leftJoin(board.account, account).fetchJoin()
+                .leftJoin(board.commentList, comment).fetchJoin()
+                .where(board.id.eq(boardId))
                 .fetchOne();
 
-        return Optional.ofNullable(board);
+        return Optional.ofNullable(findBoard);
     }
 
     /**

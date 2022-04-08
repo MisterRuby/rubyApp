@@ -2,6 +2,7 @@ package ruby.rubyapp.board.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ruby.rubyapp.account.entity.Account;
 import ruby.rubyapp.account.repository.AccountRepository;
 import ruby.rubyapp.board.entity.Board;
@@ -18,6 +19,7 @@ import java.util.Optional;
  */
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class CommentServiceImpl implements CommentService {
 
     private final AccountRepository accountRepository;
@@ -27,15 +29,15 @@ public class CommentServiceImpl implements CommentService {
     /**
      * 댓글 등록
      * @param content       댓글 내용
-     * @param accountEmail  작성자 email
+     * @param email         작성자 email
      * @param boardId       게시글 id
      * @return 등록된 댓글
      */
     @Override
-    public Comment addComment(String content, String accountEmail, Long boardId) {
-        if (BoardValidation.validateRegisterComment(content, accountEmail, boardId)) return new Comment();
+    public Comment addComment(String content, String email, Long boardId) {
+        if (!BoardValidation.validateRegisterComment(content, email, boardId)) return new Comment();
 
-        Optional<Account> optionalAccount = accountRepository.findByEmail(accountEmail);
+        Optional<Account> optionalAccount = accountRepository.findByEmail(email);
         Optional<Board> optionalBoard = boardRepository.findById(boardId);
         
         if (optionalAccount.isPresent() && optionalBoard.isPresent()) {
@@ -44,5 +46,23 @@ public class CommentServiceImpl implements CommentService {
         }
 
         return null;
+    }
+
+    /**
+     * 댓글 수정
+     * @param content           댓글 내용
+     * @param email             작성자 email
+     * @param boardId           게시글 id
+     * @param commentId         댓글 id
+     * @return
+     */
+    @Override
+    public Optional<Comment> updateComment(String content, String email, Long boardId, Long commentId) {
+        if (!BoardValidation.validateRegisterComment(content, email, boardId)) return Optional.empty();
+
+        Optional<Comment> optionalComment = commentRepository.findByIdAndBoardIdAndAccountEmail(commentId, boardId, email);
+        optionalComment.ifPresent(comment -> comment.update(content));
+
+        return optionalComment;
     }
 }

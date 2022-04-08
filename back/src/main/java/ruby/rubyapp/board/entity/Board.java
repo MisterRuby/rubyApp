@@ -2,6 +2,7 @@ package ruby.rubyapp.board.entity;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import ruby.rubyapp.account.entity.Account;
 
 import javax.persistence.*;
@@ -19,6 +20,7 @@ import static javax.persistence.FetchType.LAZY;
 @Entity
 @NoArgsConstructor
 @Getter
+@Setter
 public class Board {
 
     @Id @GeneratedValue
@@ -46,4 +48,10 @@ public class Board {
     }
 
     /** 비즈니스 메서드 */
+
+    /** 게시글 수정 */
+    public void update(String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
 }

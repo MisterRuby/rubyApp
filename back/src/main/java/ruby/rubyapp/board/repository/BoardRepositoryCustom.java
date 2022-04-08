@@ -19,7 +19,7 @@ public interface BoardRepositoryCustom {
     Page<Board> getBoardList (SearchType searchType, String searchWord, Pageable pageable);
 
     /**
-     * 게시글 단건, 연관된 댓글목록 조회
+     * 게시글 단건 조회
      * @param boardId       게시글 id
      * @return
      */

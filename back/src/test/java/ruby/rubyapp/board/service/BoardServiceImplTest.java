@@ -7,6 +7,7 @@ import ruby.rubyapp.BoardBaseTest;
 import ruby.rubyapp.board.entity.Board;
 import ruby.rubyapp.board.entity.SearchType;
 
+import javax.transaction.Transactional;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -14,11 +15,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * 게시글 테스트
  */
+@Transactional
 class BoardServiceImplTest extends BoardBaseTest {
 
     @Test
     @DisplayName("제목, 내용, 사용자 정보가 모두 있을 때 게시글 등록 성공")
     public void successRegisterBoard() {
+        System.out.println("BoardServiceImplTest.successRegisterBoard");
         // 제목과 내용, 사용자 정보 셋팅
         String title = "테스트 등록";
         String content = "테스트 내용 등록입니다.";
@@ -27,13 +30,9 @@ class BoardServiceImplTest extends BoardBaseTest {
         // 게시글 저장
         Board savedBoard = boardService.addBoard(title, content, email);
 
-        // 저장한 게시글의 id로 조회
-//        Board searchBoard = boardService.getBoard(savedBoard.getId()).get();
-
-        Board searchBoard = boardRepository.findById(savedBoard.getId()).get();
-
         // 저장된 게시글과 조회한 게시글 확인
-        assertThat(savedBoard).isEqualTo(searchBoard);
+        assertThat(savedBoard.getTitle()).isEqualTo(title);
+        assertThat(savedBoard.getContent()).isEqualTo(content);
     }
 
     @Test
@@ -181,7 +180,7 @@ class BoardServiceImplTest extends BoardBaseTest {
     }
 
     @Test
-    @DisplayName("사용자이름으로 검색")
+    @DisplayName("없는 사용자이름으로 검색")
     public void getBoardListByNoneUsername() {
         SearchType searchType = SearchType.USERNAME;
         String searchWord = "test7213";
@@ -191,8 +190,6 @@ class BoardServiceImplTest extends BoardBaseTest {
 
         assertThat(boardList.getTotalElements()).isEqualTo(0);
     }
-
-    // TODO - 게시글 단건 조회 구현
 
     @Test
     @DisplayName("게시글 단건 조회")
@@ -211,7 +208,7 @@ class BoardServiceImplTest extends BoardBaseTest {
         Board board = boardService.getBoard(boardId).get();
         assertThat(board.getId()).isEqualTo(boardId);
         assertThat(board.getCommentList().size()).isEqualTo(5);
-        assertThat(board.getCommentList().get(3).getWriter()).isEqualTo("test4");
+        assertThat(board.getCommentList().get(3).getAccount().getName()).isEqualTo("test4");
         assertThat(board.getAccount().getName()).isEqualTo("test110");
     }
 
@@ -222,5 +219,92 @@ class BoardServiceImplTest extends BoardBaseTest {
         Optional<Board> boardOptional = boardService.getBoard(boardId);
 
         assertThat(boardOptional.isEmpty()).isTrue();
+    }
+
+    @Test
+    @DisplayName("게시글 수정")
+    public void updateBoard() {
+        SearchType searchType = SearchType.TITLE;
+        String searchWord = "게시글110";
+        int pageNum = 0;
+
+        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Board board = boardList.getContent().get(0);
+        Long boardId = board.getId();
+        String email = "test110@naver.com";
+        em.clear();             // 영속성 컨텍스트 비우기
+
+        System.out.println("===========수정 시작==============");
+
+        String title = "변경된 제목";
+        String content = "변경된 내용입니다.";
+
+        boardService.updateBoard(boardId, title, content, email);
+
+        // 저장되어 조회가 가능한지 확인
+        Optional<Board> optionalBoard = boardRepository.findById(boardId);
+        Board savedBoard = optionalBoard.get();
+
+        // 저장된 데이터가 일치하는지 확인
+        assertThat(savedBoard.getId()).isEqualTo(boardId);
+        assertThat(savedBoard.getTitle()).isEqualTo(title);
+        assertThat(savedBoard.getContent()).isEqualTo(content);
+    }
+
+    @Test
+    @DisplayName("게시글 작성자와 사용자가 달라 수정 실패")
+    public void failUpdateBoardByWrongAccount() {
+        SearchType searchType = SearchType.TITLE;
+        String searchWord = "게시글110";
+        int pageNum = 0;
+
+        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Board board = boardList.getContent().get(0);
+        Long boardId = board.getId();
+        String email = "test5@naver.com";
+        em.clear();             // 영속성 컨텍스트 비우기
+
+        System.out.println("===========수정 시작==============");
+
+        String title = "변경된 제목";
+        String content = "변경된 내용입니다.";
+
+        Optional<Board> optionalBoard = boardService.updateBoard(boardId, title, content, email);
+        assertThat(optionalBoard.isEmpty()).isTrue();
+    }
+
+    @Test
+    @DisplayName("제목이 빈 값일때 수정 실패")
+    public void failUpdateBoardByBlankTitle() {
+        SearchType searchType = SearchType.TITLE;
+        String searchWord = "게시글110";
+        int pageNum = 0;
+
+        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Board board = boardList.getContent().get(0);
+        Long boardId = board.getId();
+        String email = "test110@naver.com";
+        em.clear();             // 영속성 컨텍스트 비우기
+
+        System.out.println("===========수정 시작==============");
+
+        String title = "   ";
+        String content = "변경된 내용입니다.";
+
+        Optional<Board> optionalBoard = boardService.updateBoard(boardId, title, content, email);
+        assertThat(optionalBoard.isEmpty()).isTrue();
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 게시글 수정 시도")
+    public void failUpdateBoard() {
+        Long boardId = 123124515L;
+        String title = "변경된 제목";
+        String content = "변경된 내용입니다.";
+        String email = "test110@naver.com";
+
+        Optional<Board> optionalBoard = boardService.updateBoard(boardId, title, content, email);
+
+        assertThat(optionalBoard.isEmpty()).isTrue();
     }
 }

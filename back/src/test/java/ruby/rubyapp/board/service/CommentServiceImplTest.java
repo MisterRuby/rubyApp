@@ -3,15 +3,23 @@ package ruby.rubyapp.board.service;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
 import ruby.rubyapp.BoardBaseTest;
 import ruby.rubyapp.board.entity.Board;
 import ruby.rubyapp.board.entity.Comment;
+import ruby.rubyapp.board.entity.SearchType;
 
 import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * 댓글 테스트
  */
+@Transactional
 class CommentServiceImplTest extends BoardBaseTest {
 
     @Test
@@ -27,9 +35,9 @@ class CommentServiceImplTest extends BoardBaseTest {
         // 저장된 댓글 조회
         Comment searchComment = commentRepository.findById(savedComment.getId()).get();
 
-        Assertions.assertThat(savedComment).isEqualTo(searchComment);
-        Assertions.assertThat(savedComment.getBoard()).isEqualTo(board);
-        Assertions.assertThat(searchComment.getBoard()).isEqualTo(board);
+        assertThat(savedComment).isEqualTo(searchComment);
+        assertThat(savedComment.getBoard()).isEqualTo(board);
+        assertThat(searchComment.getBoard()).isEqualTo(board);
     }
 
     @Test
@@ -44,7 +52,7 @@ class CommentServiceImplTest extends BoardBaseTest {
         Comment comment = commentService.addComment(content, email, board.getId());
 
         // 저장된 댓글 조회
-        Assertions.assertThat(comment.getId()).isNull();
+        assertThat(comment.getId()).isNull();
     }
 
     @Test
@@ -59,7 +67,7 @@ class CommentServiceImplTest extends BoardBaseTest {
         Comment comment = commentService.addComment(content, email, board.getId());
 
         // 저장된 댓글 조회
-        Assertions.assertThat(comment.getId()).isNull();
+        assertThat(comment.getId()).isNull();
     }
 
 
@@ -74,6 +82,75 @@ class CommentServiceImplTest extends BoardBaseTest {
         Comment comment = commentService.addComment(content, email, board.getId());
 
         // 저장된 댓글 조회
-        Assertions.assertThat(comment.getId()).isNull();
+        assertThat(comment.getId()).isNull();
+    }
+
+    @Test
+    @DisplayName("댓글 수정")
+    public void updateComment() {
+        SearchType searchType = SearchType.TITLE;
+        String searchWord = "게시글110";
+        int pageNum = 0;
+
+        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Board board = boardList.getContent().get(0);
+        Long boardId = board.getId();
+        Comment comment = board.getCommentList().get(2);
+        String content = "댓글 내용 수정!";
+        String email = "test3@naver.com";
+        em.clear();             // 영속성 컨텍스트 비우기
+
+        System.out.println("===========수정 시작==============");
+
+        commentService.updateComment(content, email, boardId, comment.getId()).get();
+
+        // 저장되어 조회가 가능한지 확인
+        Optional<Comment> optionalComment = commentRepository.findById(comment.getId());
+        Comment savedComment = optionalComment.get();
+
+        assertThat(savedComment.getId()).isEqualTo(comment.getId());
+        assertThat(savedComment.getContent()).isEqualTo(content);
+    }
+
+    @Test
+    @DisplayName("내용이 빈 값일 경우 수정 실패")
+    public void failUpdateCommentByWrongContent() {
+        SearchType searchType = SearchType.TITLE;
+        String searchWord = "게시글110";
+        int pageNum = 0;
+
+        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Board board = boardList.getContent().get(0);
+        Long boardId = board.getId();
+        Comment comment = board.getCommentList().get(2);
+        String content = "        ";
+        String email = "test3@naver.com";
+        em.clear();             // 영속성 컨텍스트 비우기
+
+        System.out.println("===========수정 시작==============");
+
+        Optional<Comment> optionalComment = commentService.updateComment(content, email, boardId, comment.getId());
+        assertThat(optionalComment.isEmpty()).isTrue();
+    }
+
+    @Test
+    @DisplayName("접속한 유저가 댓글 작성자와 다르다면 수정 불가능")
+    public void failUpdateCommentByWrongAccount() {
+        SearchType searchType = SearchType.TITLE;
+        String searchWord = "게시글110";
+        int pageNum = 0;
+
+        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Board board = boardList.getContent().get(0);
+        Long boardId = board.getId();
+        Comment comment = board.getCommentList().get(2);
+        String content = "댓글 내용 수정!";
+        String email = "test1@naver.com";
+        em.clear();             // 영속성 컨텍스트 비우기
+
+        System.out.println("===========수정 시작==============");
+
+        Optional<Comment> optionalComment = commentService.updateComment(content, email, boardId, comment.getId());
+        assertThat(optionalComment.isEmpty()).isTrue();
     }
 }

@@ -12,6 +12,7 @@ import ruby.rubyapp.account.repository.AccountRepository;
 import ruby.rubyapp.board.entity.Board;
 import ruby.rubyapp.board.entity.SearchType;
 import ruby.rubyapp.board.repository.BoardRepository;
+import ruby.rubyapp.board.repository.CommentRepository;
 import ruby.rubyapp.board.service.BoardService;
 import ruby.rubyapp.board.util.BoardValidation;
 
@@ -27,6 +28,7 @@ public class BoardServiceImpl implements BoardService {
 
     private final AccountRepository accountRepository;
     private final BoardRepository boardRepository;
+    private final CommentRepository commentRepository;
 
     /**
      * 게시글 등록
@@ -37,7 +39,7 @@ public class BoardServiceImpl implements BoardService {
      */
     @Override
     public Board addBoard(String title, String content, String accountEmail) {
-        if (BoardValidation.validateRegisterBoard (title, content, accountEmail)) return new Board();
+        if (!BoardValidation.validateRegisterBoard (title, content, accountEmail)) return new Board();
 
         Optional<Account> optionalAccount = accountRepository.findByEmail(accountEmail);
 
@@ -57,7 +59,16 @@ public class BoardServiceImpl implements BoardService {
     @Override
     @Transactional(readOnly = true)
     public Optional<Board> getBoard(Long boardId) {
-        return boardRepository.getBoard(boardId);
+        // 게시글 단건과 작성자 정보, 연관 댓글을 fetchjoin
+        Optional<Board> optionalBoard = boardRepository.getBoard(boardId);
+
+        // 연관댓글과 댓글 작성자 목록들을 fetchjoin
+        optionalBoard.ifPresent(board ->
+                commentRepository.getCommentListByBoard(board)
+                        .forEach(comment -> comment.setBoard(board))
+        );
+
+        return optionalBoard;
     }
 
 
@@ -75,5 +86,22 @@ public class BoardServiceImpl implements BoardService {
         Pageable pageable = PageRequest.of(pageNum, PAGE_PER_MAX_COUNT, Sort.by(searchType.getValue()).descending());
 
         return boardRepository.getBoardList(searchType, searchWord, pageable);
+    }
+
+    /**
+     * 게시글 수정
+     * @param boardId       게시글 id
+     * @param title         게시글 제목
+     * @param content       게시글 내용
+     * @param email         접속자 email
+     * @return
+     */
+    @Override
+    public Optional<Board> updateBoard(Long boardId, String title, String content, String email) {
+        if (!BoardValidation.validateRegisterBoard(title, content, email)) return Optional.empty();
+
+        Optional<Board> optionalBoard = boardRepository.findByIdAndAccountEmail(boardId, email);
+        optionalBoard.ifPresent(board -> board.update(title, content));
+        return optionalBoard;
     }
 }

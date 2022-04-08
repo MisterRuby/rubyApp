@@ -1,13 +1,12 @@
 package ruby.rubyapp;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.annotation.Transactional;
 import ruby.rubyapp.account.entity.Account;
 import ruby.rubyapp.account.entity.AccountRole;
 import ruby.rubyapp.account.repository.AccountRepository;
@@ -19,6 +18,7 @@ import ruby.rubyapp.board.service.BoardService;
 import ruby.rubyapp.board.service.CommentService;
 
 import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
 
 /**
  * Board 테스트 기본 셋팅
@@ -27,7 +27,7 @@ import javax.persistence.EntityManager;
 @SpringBootTest
 @ActiveProfiles("test")
 //@Disabled
-//@Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class BoardBaseTest {
     @Autowired
     protected EntityManager em;
@@ -42,12 +42,11 @@ public class BoardBaseTest {
     @Autowired
     protected CommentService commentService;
 
-    @BeforeEach
-    public void setUp(){
+    @BeforeAll
+    void setUp(){
         initTestAccount();
         initTestBoard();
     }
-
 
     // 테스트 계정 생성
     private void initTestAccount() {
