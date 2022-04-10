@@ -16,6 +16,7 @@ import ruby.rubyapp.board.repository.CommentRepository;
 import ruby.rubyapp.board.service.BoardService;
 import ruby.rubyapp.board.util.BoardValidation;
 
+import javax.persistence.EntityManager;
 import java.util.Optional;
 
 /**
@@ -26,6 +27,7 @@ import java.util.Optional;
 @Transactional
 public class BoardServiceImpl implements BoardService {
 
+    private final EntityManager entityManager;
     private final AccountRepository accountRepository;
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;
@@ -39,7 +41,7 @@ public class BoardServiceImpl implements BoardService {
      */
     @Override
     public Board addBoard(String title, String content, String accountEmail) {
-        if (!BoardValidation.validateRegisterBoard (title, content, accountEmail)) return new Board();
+        if (!BoardValidation.validateAddBoard(title, content, accountEmail)) return new Board();
 
         Optional<Account> optionalAccount = accountRepository.findByEmail(accountEmail);
 
@@ -93,15 +95,30 @@ public class BoardServiceImpl implements BoardService {
      * @param boardId       게시글 id
      * @param title         게시글 제목
      * @param content       게시글 내용
-     * @param email         접속자 email
+     * @param email         작성자 email
      * @return
      */
     @Override
     public Optional<Board> updateBoard(Long boardId, String title, String content, String email) {
-        if (!BoardValidation.validateRegisterBoard(title, content, email)) return Optional.empty();
+        if (!BoardValidation.validateUpdateBoard(title, content, email, boardId)) return Optional.empty();
 
         Optional<Board> optionalBoard = boardRepository.findByIdAndAccountEmail(boardId, email);
         optionalBoard.ifPresent(board -> board.update(title, content));
         return optionalBoard;
+    }
+
+    /**
+     * 게시글 삭제
+     * @param boardId       게시글 id
+     * @param email         작성자 email
+     */
+    @Override
+    public void deleteBoard(Long boardId, String email) {
+        Optional<Board> optionalBoard = boardRepository.findByIdAndAccountEmail(boardId, email);
+
+        optionalBoard.ifPresent(board -> {
+            commentRepository.deleteBulkComment(board);
+            boardRepository.delete(board);
+        });
     }
 }

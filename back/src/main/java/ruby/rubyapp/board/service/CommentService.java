@@ -22,9 +22,15 @@ public interface CommentService {
      * 댓글 수정
      * @param content           댓글 내용
      * @param email             작성자 email
-     * @param boardId           게시글 id
      * @param commentId         댓글 id
      * @return
      */
-    Optional<Comment> updateComment(String content, String email, Long boardId, Long commentId);
+    Optional<Comment> updateComment(String content, String email, Long commentId);
+
+    /**
+     * 댓글 삭제
+     * @param commentId         댓글 id
+     * @param email             작성자 email
+     */
+    void deleteComment(Long commentId, String email);
 }

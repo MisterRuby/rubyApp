@@ -13,4 +13,10 @@ public interface CommentRepositoryCustom {
      * @return
      */
     List<Comment> getCommentListByBoard(Board belongBoard);
+
+    /**
+     * 게시글에 연관된 댓글 전체 삭제
+     * @param board         게시글
+     */
+    void deleteBulkComment(Board board);
 }

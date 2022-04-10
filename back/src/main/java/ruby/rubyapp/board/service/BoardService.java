@@ -41,8 +41,15 @@ public interface BoardService {
      * @param boardId       게시글 id
      * @param title         게시글 제목
      * @param content       게시글 내용
-     * @param email         접속자 email
+     * @param email         작성자 email
      * @return
      */
-    Optional<Board>  updateBoard(Long boardId, String title, String content, String email);
+    Optional<Board> updateBoard(Long boardId, String title, String content, String email);
+
+    /**
+     * 게시글 삭제
+     * @param boardId       게시글 id
+     * @param email         작성자 email
+     */
+    void deleteBoard(Long boardId, String email);
 }

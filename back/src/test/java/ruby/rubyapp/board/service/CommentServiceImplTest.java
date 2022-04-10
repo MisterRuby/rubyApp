@@ -1,6 +1,5 @@
 package ruby.rubyapp.board.service;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
@@ -13,7 +12,6 @@ import ruby.rubyapp.board.entity.SearchType;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -94,7 +92,6 @@ class CommentServiceImplTest extends BoardBaseTest {
 
         Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
         Board board = boardList.getContent().get(0);
-        Long boardId = board.getId();
         Comment comment = board.getCommentList().get(2);
         String content = "댓글 내용 수정!";
         String email = "test3@naver.com";
@@ -102,7 +99,7 @@ class CommentServiceImplTest extends BoardBaseTest {
 
         System.out.println("===========수정 시작==============");
 
-        commentService.updateComment(content, email, boardId, comment.getId()).get();
+        commentService.updateComment(content, email, comment.getId()).get();
 
         // 저장되어 조회가 가능한지 확인
         Optional<Comment> optionalComment = commentRepository.findById(comment.getId());
@@ -121,7 +118,6 @@ class CommentServiceImplTest extends BoardBaseTest {
 
         Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
         Board board = boardList.getContent().get(0);
-        Long boardId = board.getId();
         Comment comment = board.getCommentList().get(2);
         String content = "        ";
         String email = "test3@naver.com";
@@ -129,7 +125,7 @@ class CommentServiceImplTest extends BoardBaseTest {
 
         System.out.println("===========수정 시작==============");
 
-        Optional<Comment> optionalComment = commentService.updateComment(content, email, boardId, comment.getId());
+        Optional<Comment> optionalComment = commentService.updateComment(content, email, comment.getId());
         assertThat(optionalComment.isEmpty()).isTrue();
     }
 
@@ -142,7 +138,6 @@ class CommentServiceImplTest extends BoardBaseTest {
 
         Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
         Board board = boardList.getContent().get(0);
-        Long boardId = board.getId();
         Comment comment = board.getCommentList().get(2);
         String content = "댓글 내용 수정!";
         String email = "test1@naver.com";
@@ -150,7 +145,61 @@ class CommentServiceImplTest extends BoardBaseTest {
 
         System.out.println("===========수정 시작==============");
 
-        Optional<Comment> optionalComment = commentService.updateComment(content, email, boardId, comment.getId());
+        Optional<Comment> optionalComment = commentService.updateComment(content, email, comment.getId());
         assertThat(optionalComment.isEmpty()).isTrue();
+    }
+
+    @Test
+    @DisplayName("댓글 삭제")
+    public void deleteComment() {
+        SearchType searchType = SearchType.TITLE;
+        String searchWord = "게시글110";
+        int pageNum = 0;
+
+        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Board board = boardList.getContent().get(0);
+        Comment comment = board.getCommentList().get(2);
+        Long commentId = comment.getId();
+        String email = "test3@naver.com";
+        em.clear();             // 영속성 컨텍스트 비우기
+
+        assertThat(comment).isNotNull();
+
+        System.out.println("===========삭제 시작==============");
+
+        commentService.deleteComment(commentId, email);
+
+        em.flush();
+        em.clear();
+
+        Optional<Comment> optionalComment = commentRepository.findById(commentId);
+        assertThat(optionalComment.isEmpty()).isTrue();
+    }
+
+    @Test
+    @DisplayName("댓글 작성자와 사용자가 다를 경우 삭제 실패")
+    public void failDeleteComment() {
+        SearchType searchType = SearchType.TITLE;
+        String searchWord = "게시글110";
+        int pageNum = 0;
+
+        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Board board = boardList.getContent().get(0);
+        Comment comment = board.getCommentList().get(2);
+        Long commentId = comment.getId();
+        String email = "wrong@naver.com";
+        em.clear();             // 영속성 컨텍스트 비우기
+
+        assertThat(comment).isNotNull();
+
+        System.out.println("===========삭제 시작==============");
+
+        commentService.deleteComment(commentId, email);
+
+        em.flush();
+        em.clear();
+
+        Optional<Comment> optionalComment = commentRepository.findById(commentId);
+        assertThat(optionalComment.isEmpty()).isFalse();
     }
 }

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
 import ruby.rubyapp.BoardBaseTest;
 import ruby.rubyapp.board.entity.Board;
+import ruby.rubyapp.board.entity.Comment;
 import ruby.rubyapp.board.entity.SearchType;
 
 import javax.transaction.Transactional;
@@ -307,4 +308,60 @@ class BoardServiceImplTest extends BoardBaseTest {
 
         assertThat(optionalBoard.isEmpty()).isTrue();
     }
+
+    @Test
+    @DisplayName("게시글 및 관련 댓글 모두 삭제")
+    public void deleteBoard() {
+        SearchType searchType = SearchType.TITLE;
+        String searchWord = "게시글110";
+        int pageNum = 0;
+
+        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Board board = boardService.getBoard(boardList.getContent().get(0).getId()).get();
+        Long boardId = board.getId();
+        Long commentId = board.getCommentList().get(0).getId();
+        String email = board.getAccount().getEmail();
+        em.clear();
+
+        assertThat(board).isNotNull();
+
+        System.out.println("===========삭제 시작==============");
+
+        boardService.deleteBoard(boardId, email);
+
+        em.flush();
+        em.clear();
+
+        Optional<Board> optionalBoard = boardRepository.findById(boardId);
+        Optional<Comment> optionalComment = commentRepository.findById(commentId);
+        assertThat(optionalBoard.isEmpty()).isTrue();
+        assertThat(optionalComment.isEmpty()).isTrue();
+    }
+
+    @Test
+    @DisplayName("게시글 작성자와 사용자가 다르다면 삭제 실패")
+    public void failDeleteBoardWrongAccount() {
+        SearchType searchType = SearchType.TITLE;
+        String searchWord = "게시글110";
+        int pageNum = 0;
+
+        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Board board = boardService.getBoard(boardList.getContent().get(0).getId()).get();
+        Long boardId = board.getId();
+        Long commentId = board.getCommentList().get(0).getId();
+        String email = "wrong@naver.com";
+        em.clear();
+
+        assertThat(board).isNotNull();
+
+        System.out.println("===========삭제 시작==============");
+
+        boardService.deleteBoard(boardId, email);
+
+        Optional<Board> optionalBoard = boardRepository.findById(boardId);
+        Optional<Comment> optionalComment = commentRepository.findById(commentId);
+        assertThat(optionalBoard.isEmpty()).isFalse();
+        assertThat(optionalComment.isEmpty()).isFalse();
+    }
+
 }

@@ -35,7 +35,7 @@ public class CommentServiceImpl implements CommentService {
      */
     @Override
     public Comment addComment(String content, String email, Long boardId) {
-        if (!BoardValidation.validateRegisterComment(content, email, boardId)) return new Comment();
+        if (!BoardValidation.validateAddComment(content, email, boardId)) return new Comment();
 
         Optional<Account> optionalAccount = accountRepository.findByEmail(email);
         Optional<Board> optionalBoard = boardRepository.findById(boardId);
@@ -45,24 +45,34 @@ public class CommentServiceImpl implements CommentService {
             return commentRepository.save(comment);
         }
 
-        return null;
+        return new Comment();
     }
 
     /**
      * 댓글 수정
      * @param content           댓글 내용
      * @param email             작성자 email
-     * @param boardId           게시글 id
      * @param commentId         댓글 id
      * @return
      */
     @Override
-    public Optional<Comment> updateComment(String content, String email, Long boardId, Long commentId) {
-        if (!BoardValidation.validateRegisterComment(content, email, boardId)) return Optional.empty();
+    public Optional<Comment> updateComment(String content, String email, Long commentId) {
+        if (!BoardValidation.validateUpdateComment(content, email, commentId)) return Optional.empty();
 
-        Optional<Comment> optionalComment = commentRepository.findByIdAndBoardIdAndAccountEmail(commentId, boardId, email);
+        Optional<Comment> optionalComment = commentRepository.findByIdAndAccountEmail(commentId, email);
         optionalComment.ifPresent(comment -> comment.update(content));
 
         return optionalComment;
+    }
+
+    /**
+     * 댓글 삭제
+     * @param commentId         댓글 id
+     * @param email             작성자 email
+     */
+    @Override
+    public void deleteComment(Long commentId, String email) {
+        Optional<Comment> optionalComment = commentRepository.findByIdAndAccountEmail(commentId, email);
+        optionalComment.ifPresent(commentRepository::delete);
     }
 }
