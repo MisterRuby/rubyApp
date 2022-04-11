@@ -1,5 +1,7 @@
 package ruby.rubyapp.board.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,6 +23,7 @@ import static javax.persistence.FetchType.LAZY;
 @NoArgsConstructor
 @Getter
 @Setter
+@EqualsAndHashCode(of = "id")
 public class Board {
 
     @Id @GeneratedValue
@@ -34,6 +37,7 @@ public class Board {
     private LocalDateTime reportingDate;
 
     /** 연관관계 */
+    @JsonIgnore
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "account_id")
     private Account account;

@@ -8,7 +8,6 @@ import ruby.rubyapp.board.entity.Board;
 import ruby.rubyapp.board.entity.Comment;
 import ruby.rubyapp.board.entity.SearchType;
 
-import javax.transaction.Transactional;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -16,7 +15,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * 게시글 테스트
  */
-@Transactional
 class BoardServiceImplTest extends BoardBaseTest {
 
     @Test

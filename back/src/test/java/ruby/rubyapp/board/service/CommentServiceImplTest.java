@@ -17,7 +17,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * 댓글 테스트
  */
-@Transactional
 class CommentServiceImplTest extends BoardBaseTest {
 
     @Test

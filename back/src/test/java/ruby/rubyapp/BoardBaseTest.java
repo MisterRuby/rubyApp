@@ -28,6 +28,7 @@ import javax.transaction.Transactional;
 @ActiveProfiles("test")
 //@Disabled
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Transactional
 public class BoardBaseTest {
     @Autowired
     protected EntityManager em;
