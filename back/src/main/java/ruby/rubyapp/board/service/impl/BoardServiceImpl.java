@@ -16,7 +16,6 @@ import ruby.rubyapp.board.repository.CommentRepository;
 import ruby.rubyapp.board.service.BoardService;
 import ruby.rubyapp.board.util.BoardValidation;
 
-import javax.persistence.EntityManager;
 import java.util.Optional;
 
 /**
@@ -27,7 +26,6 @@ import java.util.Optional;
 @Transactional
 public class BoardServiceImpl implements BoardService {
 
-    private final EntityManager entityManager;
     private final AccountRepository accountRepository;
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;

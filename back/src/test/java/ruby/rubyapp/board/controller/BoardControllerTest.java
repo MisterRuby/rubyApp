@@ -10,13 +10,11 @@ import ruby.rubyapp.board.entity.Board;
 import ruby.rubyapp.board.entity.SearchType;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 public class BoardControllerTest extends BoardControllerBaseTest {
-
 
     @Test
     @DisplayName("게시글 목록 조회")
@@ -107,10 +105,6 @@ public class BoardControllerTest extends BoardControllerBaseTest {
         Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
         Long boardId = boardList.getContent().get(0).getId();
 
-        em.clear();             // 영속성 컨텍스트 비우기
-
-        System.out.println("===========조회 시작==============");
-
         mockMvc.perform(
                 get("/boards/{id}", boardId)
                         .with(oauth2Login())
@@ -193,6 +187,93 @@ public class BoardControllerTest extends BoardControllerBaseTest {
 
         mockMvc.perform(
                 post("/boards")
+                        .session(mockHttpSession)
+                        .with(oauth2Login())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(boardDto))
+        )
+                .andDo(print())
+                .andExpect(jsonPath("id").doesNotExist());
+    }
+
+    @Test
+    @DisplayName("게시글 수정")
+    public void updateBoard() throws Exception {
+        SearchType searchType = SearchType.CONTENT;
+        String searchWord = "게시글1의";
+        int pageNum = 0;
+
+        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Long boardId = boardList.getContent().get(0).getId();
+
+        String title = "변경된 타이틀입니다.";
+        String content = "변경된 내용입니다.";
+
+        BoardDto boardDto = new BoardDto();
+        boardDto.setTitle(title);
+        boardDto.setContent(content);
+
+        mockMvc.perform(
+                patch("/boards/{boardId}", boardId)
+                        .session(mockHttpSession)
+                        .with(oauth2Login())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(boardDto))
+        )
+                .andDo(print())
+                .andExpect(jsonPath("id").value(boardId))
+                .andExpect(jsonPath("title").value(title))
+                .andExpect(jsonPath("content").value(content))
+                .andExpect(jsonPath("commentList.length()").value(5));
+    }
+
+    @Test
+    @DisplayName("게시글 작성자와 다른 계정으로 수정")
+    public void failUpdateBoardByWrongAccount() throws Exception {
+        SearchType searchType = SearchType.CONTENT;
+        String searchWord = "게시글12의";
+        int pageNum = 0;
+
+        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Long boardId = boardList.getContent().get(0).getId();
+
+        String title = "변경된 타이틀입니다.";
+        String content = "변경된 내용입니다.";
+
+        BoardDto boardDto = new BoardDto();
+        boardDto.setTitle(title);
+        boardDto.setContent(content);
+
+        mockMvc.perform(
+                patch("/boards/{boardId}", boardId)
+                        .session(mockHttpSession)
+                        .with(oauth2Login())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(boardDto))
+        )
+                .andDo(print())
+                .andExpect(jsonPath("id").doesNotExist());
+    }
+
+    @Test
+    @DisplayName("최소 글자 미만의 제목으로 게시글 수정")
+    public void failUpdateBoardByWrongTitle() throws Exception {
+        SearchType searchType = SearchType.CONTENT;
+        String searchWord = "게시글1의";
+        int pageNum = 0;
+
+        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Long boardId = boardList.getContent().get(0).getId();
+
+        String title = "";
+        String content = "변경된 내용입니다.";
+
+        BoardDto boardDto = new BoardDto();
+        boardDto.setTitle(title);
+        boardDto.setContent(content);
+
+        mockMvc.perform(
+                patch("/boards/{boardId}", boardId)
                         .session(mockHttpSession)
                         .with(oauth2Login())
                         .contentType(MediaType.APPLICATION_JSON)

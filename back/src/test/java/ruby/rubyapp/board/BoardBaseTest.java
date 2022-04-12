@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ruby.rubyapp.account.dto.AccountDto;
@@ -32,6 +33,7 @@ import javax.transaction.Transactional;
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
+@Rollback
 public class BoardBaseTest {
     @Autowired
     protected EntityManager em;
@@ -79,7 +81,7 @@ public class BoardBaseTest {
             Board board = new Board(title, content, account);
             boardRepository.save(board);
 
-            if (i % 2 == 0) initTestComment(board);
+            initTestComment(board);
         }
     }
 

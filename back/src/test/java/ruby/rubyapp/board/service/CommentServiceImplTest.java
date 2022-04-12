@@ -3,11 +3,13 @@ package ruby.rubyapp.board.service;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
+import org.springframework.test.annotation.Rollback;
 import ruby.rubyapp.board.BoardBaseTest;
 import ruby.rubyapp.board.entity.Board;
 import ruby.rubyapp.board.entity.Comment;
 import ruby.rubyapp.board.entity.SearchType;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 

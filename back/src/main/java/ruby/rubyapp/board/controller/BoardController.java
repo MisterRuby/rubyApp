@@ -69,4 +69,20 @@ public class BoardController {
 
         return BoardDto.builder().id(board.getId()).build();
     }
+
+    @PatchMapping("/{boardId}")
+    public BoardDto updateBoard(
+            @PathVariable Long boardId, @RequestBody @Valid BoardDto boardDto, Errors errors, @LoginAccount SessionAccount account) {
+        if (errors.hasErrors()) {
+            return new BoardDto();
+        }
+
+        Optional<Board> optionalBoard = boardService.updateBoard(boardId, boardDto.getTitle(), boardDto.getContent(), account.getEmail());
+
+        if (optionalBoard.isPresent()) {
+            return new BoardDto(boardService.getBoard(boardId));
+        }
+
+        return new BoardDto();
+    }
 }

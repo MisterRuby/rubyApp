@@ -3,6 +3,7 @@ package ruby.rubyapp.board.service;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
+import org.springframework.test.annotation.Rollback;
 import ruby.rubyapp.board.BoardBaseTest;
 import ruby.rubyapp.board.entity.Board;
 import ruby.rubyapp.board.entity.Comment;
@@ -199,8 +200,6 @@ class BoardServiceImplTest extends BoardBaseTest {
 
         Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
         Long boardId = boardList.getContent().get(0).getId();
-
-        em.clear();             // 영속성 컨텍스트 비우기
 
         System.out.println("===========조회 시작==============");
 
