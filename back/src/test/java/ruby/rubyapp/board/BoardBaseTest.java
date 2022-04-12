@@ -1,12 +1,15 @@
-package ruby.rubyapp;
+package ruby.rubyapp.board;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import ruby.rubyapp.account.dto.AccountDto;
 import ruby.rubyapp.account.entity.Account;
 import ruby.rubyapp.account.entity.AccountRole;
 import ruby.rubyapp.account.repository.AccountRepository;
@@ -16,6 +19,7 @@ import ruby.rubyapp.board.repository.BoardRepository;
 import ruby.rubyapp.board.repository.CommentRepository;
 import ruby.rubyapp.board.service.BoardService;
 import ruby.rubyapp.board.service.CommentService;
+import ruby.rubyapp.config.oauth.SessionAccount;
 
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
@@ -26,7 +30,6 @@ import javax.transaction.Transactional;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @ActiveProfiles("test")
-//@Disabled
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
 public class BoardBaseTest {
@@ -42,6 +45,8 @@ public class BoardBaseTest {
     protected BoardService boardService;
     @Autowired
     protected CommentService commentService;
+    @Autowired
+    protected ObjectMapper objectMapper;
 
     @BeforeAll
     void setUp(){
@@ -50,7 +55,7 @@ public class BoardBaseTest {
     }
 
     // 테스트 계정 생성
-    private void initTestAccount() {
+    protected void initTestAccount() {
         for (int i = 1; i <= 112; i++) {
             String name = "test" + i;
             String email = name + "@naver.com";
@@ -64,7 +69,7 @@ public class BoardBaseTest {
     }
 
     // 테스트 게시글 생성
-    private void initTestBoard() {
+    protected void initTestBoard() {
         for (int i = 1; i <= 112; i++) {
             String title = "게시글" + i;
             String content = title + "의 본문입니다.";

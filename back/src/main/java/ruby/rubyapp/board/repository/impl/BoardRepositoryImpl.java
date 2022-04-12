@@ -74,6 +74,8 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
      * @return
      */
     public BooleanExpression getBoardSearchCondition(SearchType searchType, String searchWord) {
+        if (searchType == null || searchWord == null) return null;
+
         if (searchType.equals(SearchType.CONTENT)) {
             return board.content.contains(searchWord);
         }

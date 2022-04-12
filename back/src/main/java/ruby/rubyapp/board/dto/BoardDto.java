@@ -1,28 +1,32 @@
 package ruby.rubyapp.board.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import ruby.rubyapp.board.entity.Board;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Getter @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class BoardDto {
 
     private Long id;
+    @NotBlank(message = "제목은 최소 두글자 이상이어야 합니다.")
+    @Size(min = 2)
     private String title;
+    @NotBlank(message = "내용은 최소 두글자 이상이어야 합니다.")
+    @Size(min = 2)
     private String content;
     private LocalDateTime reportingDate;
-    private String username;
-    private String userEmail;
+    private String name;
+    private String email;
     private List<CommentDto> commentList;
 
     public BoardDto (Optional<Board> optionalBoard) {
@@ -31,24 +35,20 @@ public class BoardDto {
             this.title = board.getTitle();
             this.content = board.getContent();
             this.reportingDate = board.getReportingDate();
-            this.username = board.getAccount().getName();
-            this.userEmail = board.getAccount().getEmail();
+            this.name = board.getAccount().getName();
+            this.email = board.getAccount().getEmail();
             this.commentList = board.getCommentList().stream()
-                    .map(comment -> new CommentDto(
-                            comment.getId(), comment.getContent(), comment.getReportingDate(),
-                            comment.getAccount().getName(), comment.getAccount().getEmail()
-                    ))
+                    .map(comment ->
+                            CommentDto.builder()
+                            .id(comment.getId())
+                            .content(comment.getContent())
+                            .reportingDate(comment.getReportingDate())
+                            .name(comment.getAccount().getName())
+                            .email(comment.getAccount().getEmail())
+                            .boardId(this.id)
+                            .build()
+                    )
                     .collect(Collectors.toList());
         });
-    }
-
-    @Getter @Setter
-    @AllArgsConstructor
-    class CommentDto {
-        private Long id;
-        private String content;
-        private LocalDateTime reportingDate;
-        private String username;
-        private String userEmail;
     }
 }

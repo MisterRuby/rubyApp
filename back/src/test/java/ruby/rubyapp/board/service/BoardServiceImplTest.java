@@ -3,7 +3,7 @@ package ruby.rubyapp.board.service;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
-import ruby.rubyapp.BoardBaseTest;
+import ruby.rubyapp.board.BoardBaseTest;
 import ruby.rubyapp.board.entity.Board;
 import ruby.rubyapp.board.entity.Comment;
 import ruby.rubyapp.board.entity.SearchType;
