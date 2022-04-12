@@ -13,6 +13,7 @@ import ruby.rubyapp.config.oauth.LoginAccount;
 import ruby.rubyapp.config.oauth.SessionAccount;
 
 import javax.validation.Valid;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/comments")
@@ -28,13 +29,33 @@ public class CommentController {
      * @return
      */
     @PostMapping
-    public CommentDto addComment(@RequestBody @Valid CommentDto commentDto, Errors errors, @LoginAccount SessionAccount account) {
+    public BoardDto addComment(@RequestBody @Valid CommentDto commentDto, Errors errors, @LoginAccount SessionAccount account) {
         if (errors.hasErrors()) {
-            return new CommentDto();
+            return new BoardDto();
         }
 
         Comment comment = commentService.addComment(commentDto.getContent(), account.getEmail(), commentDto.getBoardId());
 
-        return CommentDto.builder().id(comment.getId()).build();
+        if (comment != null) {
+            return new BoardDto(boardService.getBoard(commentDto.getBoardId()));
+        }
+
+        return new BoardDto();
+    }
+
+    @PatchMapping("/{commentId}")
+    public BoardDto updateComment(
+            @PathVariable Long commentId, @RequestBody @Valid CommentDto commentDto, Errors errors, @LoginAccount SessionAccount account) {
+        if (errors.hasErrors()) {
+            return new BoardDto();
+        }
+
+        Optional<Comment> optionalComment = commentService.updateComment(commentDto.getContent(), account.getEmail(), commentId);
+
+        if (optionalComment.isPresent()) {
+            return new BoardDto(boardService.getBoard(commentDto.getBoardId()));
+        }
+
+        return new BoardDto();
     }
 }
