@@ -16,7 +16,7 @@ public interface CommentRepositoryCustom {
 
     /**
      * 게시글에 연관된 댓글 전체 삭제
-     * @param board         게시글
+     * @param boardId         게시글 id
      */
-    void deleteBulkComment(Board board);
+    void deleteBulkComment(Long boardId);
 }

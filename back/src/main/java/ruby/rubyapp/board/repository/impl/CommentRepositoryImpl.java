@@ -32,11 +32,11 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 
     /**
      * 게시글에 연관된 댓글 전체 삭제
-     * @param board         게시글
+     * @param boardId         게시글 id
      */
-    public void deleteBulkComment(Board board) {
+    public void deleteBulkComment(Long boardId) {
         queryFactory.delete(comment)
-                .where(comment.board.eq(board))
+                .where(comment.board.id.eq(boardId))
                 .execute();
     }
 }

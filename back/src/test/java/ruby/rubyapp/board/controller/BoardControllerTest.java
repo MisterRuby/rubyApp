@@ -9,6 +9,7 @@ import ruby.rubyapp.board.dto.BoardDto;
 import ruby.rubyapp.board.entity.Board;
 import ruby.rubyapp.board.entity.SearchType;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -281,5 +282,61 @@ public class BoardControllerTest extends BoardControllerBaseTest {
         )
                 .andDo(print())
                 .andExpect(jsonPath("id").doesNotExist());
+    }
+
+    @Test
+    @DisplayName("게시글 삭제 및 해당 게시글에 포함되는 댓글 모두 삭제")
+    public void deleteBoard() throws Exception {
+        SearchType searchType = SearchType.CONTENT;
+        String searchWord = "게시글1의";
+        int pageNum = 0;
+
+        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Long boardId = boardList.getContent().get(0).getId();
+
+        long boardCount = boardRepository.count();
+        long commentCount = commentRepository.count();
+
+        mockMvc.perform(
+                delete("/boards/{boardId}", boardId)
+                        .session(mockHttpSession)
+                        .with(oauth2Login())
+        )
+                .andDo(print())
+                .andExpect(jsonPath("id").value(boardId));
+
+        long resultBoardCount = boardRepository.count();
+        long resultCommentCount = commentRepository.count();
+
+        assertThat(resultBoardCount).isEqualTo(boardCount - 1);
+        assertThat(resultCommentCount).isEqualTo(commentCount - 5);
+    }
+
+    @Test
+    @DisplayName("작성자가 아닌 사용자가 게시글 삭제")
+    public void failDeleteBoardByWrongAccount() throws Exception {
+        SearchType searchType = SearchType.CONTENT;
+        String searchWord = "게시글5의";
+        int pageNum = 0;
+
+        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Long boardId = boardList.getContent().get(0).getId();
+
+        long boardCount = boardRepository.count();
+        long commentCount = commentRepository.count();
+
+        mockMvc.perform(
+                delete("/boards/{boardId}", boardId)
+                        .session(mockHttpSession)
+                        .with(oauth2Login())
+        )
+                .andDo(print())
+                .andExpect(jsonPath("id").isEmpty());
+
+        long resultBoardCount = boardRepository.count();
+        long resultCommentCount = commentRepository.count();
+
+        assertThat(resultBoardCount).isEqualTo(boardCount);
+        assertThat(resultCommentCount).isEqualTo(commentCount);
     }
 }

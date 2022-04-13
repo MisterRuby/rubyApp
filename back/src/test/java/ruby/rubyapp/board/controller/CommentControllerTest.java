@@ -1,6 +1,5 @@
 package ruby.rubyapp.board.controller;
 
-import com.sun.istack.NotNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -9,14 +8,11 @@ import ruby.rubyapp.board.dto.CommentDto;
 import ruby.rubyapp.board.entity.Board;
 import ruby.rubyapp.board.entity.Comment;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
-import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -202,5 +198,51 @@ public class CommentControllerTest extends BoardControllerBaseTest {
         )
                 .andDo(print())
                 .andExpect(jsonPath("id").doesNotExist());
+    }
+
+    @Test
+    @DisplayName("댓글 삭제")
+    public void deleteComment() throws Exception {
+        List<Board> allBoard = boardRepository.findAll();
+        Board board = allBoard.get(0);
+        Comment comment = board.getCommentList().get(0);
+        Long commentId = comment.getId();
+
+        long commentCount = commentRepository.count();
+
+        mockMvc.perform(
+                delete("/comments/{commentId}", commentId)
+                        .session(mockHttpSession)
+                        .with(oauth2Login())
+        )
+                .andDo(print())
+                .andExpect(jsonPath("id").value(commentId));
+
+        long resultCommentCount = commentRepository.count();
+
+        assertThat(resultCommentCount).isEqualTo(commentCount - 1);
+    }
+
+    @Test
+    @DisplayName("작성자가 아닌 사용자가 게시글 삭제")
+    public void failDeleteCommentWrongAccount() throws Exception {
+        List<Board> allBoard = boardRepository.findAll();
+        Board board = allBoard.get(0);
+        Comment comment = board.getCommentList().get(3);
+        Long commentId = comment.getId();
+
+        long commentCount = commentRepository.count();
+
+        mockMvc.perform(
+                delete("/comments/{commentId}", commentId)
+                        .session(mockHttpSession)
+                        .with(oauth2Login())
+        )
+                .andDo(print())
+                .andExpect(jsonPath("id").isEmpty());
+
+        long resultCommentCount = commentRepository.count();
+
+        assertThat(resultCommentCount).isEqualTo(commentCount);
     }
 }

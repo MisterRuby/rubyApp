@@ -31,6 +31,7 @@ public interface CommentService {
      * 댓글 삭제
      * @param commentId         댓글 id
      * @param email             작성자 email
+     * @return
      */
-    void deleteComment(Long commentId, String email);
+    Long deleteComment(Long commentId, String email);
 }

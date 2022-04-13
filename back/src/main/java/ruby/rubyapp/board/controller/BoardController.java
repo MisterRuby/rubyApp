@@ -70,6 +70,13 @@ public class BoardController {
         return BoardDto.builder().id(board.getId()).build();
     }
 
+    /**
+     * 게시글 수정
+     * @param boardId       게시글 id
+     * @param boardDto      게시글 수정 정보
+     * @param account       작성자(접속자) 계정 정보
+     * @return
+     */
     @PatchMapping("/{boardId}")
     public BoardDto updateBoard(
             @PathVariable Long boardId, @RequestBody @Valid BoardDto boardDto, Errors errors, @LoginAccount SessionAccount account) {
@@ -79,10 +86,21 @@ public class BoardController {
 
         Optional<Board> optionalBoard = boardService.updateBoard(boardId, boardDto.getTitle(), boardDto.getContent(), account.getEmail());
 
-        if (optionalBoard.isPresent()) {
-            return new BoardDto(boardService.getBoard(boardId));
-        }
+        return optionalBoard.isPresent() ?
+                new BoardDto(boardService.getBoard(boardId)) : new BoardDto();
+    }
 
-        return new BoardDto();
+    /**
+     * 게시글 삭제
+     * @param boardId       게시글 id
+     * @param account       작성자(접속자) 계정 정보
+     * @return
+     */
+    @DeleteMapping("/{boardId}")
+    public BoardDto deleteBoard(@PathVariable Long boardId, @LoginAccount SessionAccount account) {
+
+        Long deleteBoardId = boardService.deleteBoard(boardId, account.getEmail());
+
+        return BoardDto.builder().id(deleteBoardId).build();
     }
 }

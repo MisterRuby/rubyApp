@@ -69,10 +69,13 @@ public class CommentServiceImpl implements CommentService {
      * 댓글 삭제
      * @param commentId         댓글 id
      * @param email             작성자 email
+     * @return
      */
     @Override
-    public void deleteComment(Long commentId, String email) {
+    public Long deleteComment(Long commentId, String email) {
         Optional<Comment> optionalComment = commentRepository.findByIdAndAccountEmail(commentId, email);
         optionalComment.ifPresent(commentRepository::delete);
+
+        return optionalComment.isPresent() ? commentId : null;
     }
 }

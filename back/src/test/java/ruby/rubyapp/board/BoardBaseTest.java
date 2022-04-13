@@ -1,10 +1,13 @@
 package ruby.rubyapp.board;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
@@ -31,6 +34,7 @@ import javax.transaction.Transactional;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
 @Rollback
+@Disabled
 public class BoardBaseTest {
     @Autowired
     protected EntityManager em;
@@ -51,6 +55,13 @@ public class BoardBaseTest {
     void setUp(){
         initTestAccount();
         initTestBoard();
+    }
+
+    @AfterAll
+    void finish () {
+        commentRepository.deleteAll();
+        boardRepository.deleteAll();
+        accountRepository.deleteAll();
     }
 
     // 테스트 계정 생성

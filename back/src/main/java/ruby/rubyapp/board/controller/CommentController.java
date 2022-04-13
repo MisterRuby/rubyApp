@@ -36,11 +36,8 @@ public class CommentController {
 
         Comment comment = commentService.addComment(commentDto.getContent(), account.getEmail(), commentDto.getBoardId());
 
-        if (comment != null) {
-            return new BoardDto(boardService.getBoard(commentDto.getBoardId()));
-        }
-
-        return new BoardDto();
+        return comment != null ?
+                new BoardDto(boardService.getBoard(commentDto.getBoardId())) : new BoardDto();
     }
 
     @PatchMapping("/{commentId}")
@@ -52,10 +49,14 @@ public class CommentController {
 
         Optional<Comment> optionalComment = commentService.updateComment(commentDto.getContent(), account.getEmail(), commentId);
 
-        if (optionalComment.isPresent()) {
-            return new BoardDto(boardService.getBoard(commentDto.getBoardId()));
-        }
+        return optionalComment.isPresent() ?
+                new BoardDto(boardService.getBoard(commentDto.getBoardId())) : new BoardDto();
+    }
 
-        return new BoardDto();
+    @DeleteMapping("/{commentId}")
+    public CommentDto deleteComment (@PathVariable Long commentId, @LoginAccount SessionAccount account) {
+        Long deleteCommentId = commentService.deleteComment(commentId, account.getEmail());
+
+        return CommentDto.builder().id(deleteCommentId).build();
     }
 }

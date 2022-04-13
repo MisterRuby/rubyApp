@@ -109,14 +109,17 @@ public class BoardServiceImpl implements BoardService {
      * 게시글 삭제
      * @param boardId       게시글 id
      * @param email         작성자 email
+     * @return
      */
     @Override
-    public void deleteBoard(Long boardId, String email) {
+    public Long deleteBoard(Long boardId, String email) {
         Optional<Board> optionalBoard = boardRepository.findByIdAndAccountEmail(boardId, email);
 
         optionalBoard.ifPresent(board -> {
-            commentRepository.deleteBulkComment(board);
+            commentRepository.deleteBulkComment(boardId);
             boardRepository.delete(board);
         });
+
+        return optionalBoard.isPresent() ? boardId : null;
     }
 }

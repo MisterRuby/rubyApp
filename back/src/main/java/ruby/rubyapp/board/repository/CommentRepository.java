@@ -20,7 +20,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, Comment
 
     /**
      * 게시글에 관련된 댓글 삭제
-     * @param board     게시글
+     * @param boardId     게시글 id
      */
-    void deleteByBoard(Board board);
+    void deleteByBoard(Long boardId);
 }

@@ -50,6 +50,7 @@ public interface BoardService {
      * 게시글 삭제
      * @param boardId       게시글 id
      * @param email         작성자 email
+     * @return
      */
-    void deleteBoard(Long boardId, String email);
+    Long deleteBoard(Long boardId, String email);
 }
