@@ -5,7 +5,6 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import ruby.rubyapp.board.dto.BoardDto;
 import ruby.rubyapp.board.dto.CommentDto;
-import ruby.rubyapp.board.entity.Board;
 import ruby.rubyapp.board.entity.Comment;
 import ruby.rubyapp.board.service.BoardService;
 import ruby.rubyapp.board.service.CommentService;
