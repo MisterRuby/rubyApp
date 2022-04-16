@@ -38,7 +38,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 
     /* jwt */
-    implementation 'com.auth0:java-jwt:3.4.1'
+//    implementation 'com.auth0:java-jwt:3.4.1'
+//    implementation 'org.springframework.security:spring-security-jwt:1.1.1.RELEASE'
+    implementation 'io.jsonwebtoken:jjwt:0.9.1'
 
     /* querydsl */
     implementation 'com.querydsl:querydsl-core'

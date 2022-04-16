@@ -24,16 +24,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+                .cors().and()
                 .csrf().disable()
-                .cors();                                     //  cors 허용
-//                .headers().frameOptions().disable();
+                .headers().frameOptions().disable();
 
         http
                 .authorizeRequests()                                                               // url별 권한 관리를 설정하는 옵션의 시작점
-                .antMatchers("/").permitAll()                                           // permitAll() : 인증 x
+                .antMatchers("/", "/accounts", "/boards").permitAll()                   // permitAll() : 인증 x
                 .antMatchers("/boards/**").hasRole(AccountRole.USER.name())
                 .anyRequest().authenticated();
 //                .expressionHandler(expressionHandler());
+
+        http
+                .formLogin().disable()
+                .httpBasic().disable();
 
         http.oauth2Login()
                 .userInfoEndpoint()
@@ -52,6 +56,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         return expressionHandler;
     }
+
+
 
 
 }

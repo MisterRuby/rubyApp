@@ -1,6 +1,17 @@
 import styled from "@emotion/styled";
 
-export const Box = styled.div`
+const Info = () => {
+
+  return (
+    <Container>
+      <h1>Ruby's Page</h1>
+    </Container>
+    )
+}
+export default Info;
+
+
+export const Container = styled.div`
   width: 400px;
   height: 100px;
   position: absolute;

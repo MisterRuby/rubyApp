@@ -5,6 +5,7 @@ import ruby.rubyapp.board.entity.Board;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -23,31 +24,29 @@ public class BoardDto {
     @NotBlank(message = "내용은 최소 두글자 이상이어야 합니다.")
     @Size(min = 2)
     private String content;
-    private LocalDateTime reportingDate;
+    private LocalDate reportingDate;
     private String name;
     private String email;
     private List<CommentDto> commentList;
 
-    public BoardDto (Optional<Board> optionalBoard) {
-        optionalBoard.ifPresent(board -> {
-            this.id = board.getId();
-            this.title = board.getTitle();
-            this.content = board.getContent();
-            this.reportingDate = board.getReportingDate();
-            this.name = board.getAccount().getName();
-            this.email = board.getAccount().getEmail();
-            this.commentList = board.getCommentList().stream()
-                    .map(comment ->
-                            CommentDto.builder()
-                            .id(comment.getId())
-                            .content(comment.getContent())
-                            .reportingDate(comment.getReportingDate())
-                            .name(comment.getAccount().getName())
-                            .email(comment.getAccount().getEmail())
-                            .boardId(this.id)
-                            .build()
-                    )
-                    .collect(Collectors.toList());
-        });
+    public BoardDto (Board board) {
+        this.id = board.getId();
+        this.title = board.getTitle();
+        this.content = board.getContent();
+        this.reportingDate = board.getReportingDate().toLocalDate();
+        this.name = board.getAccount().getName();
+        this.email = board.getAccount().getEmail();
+        this.commentList = board.getCommentList().stream()
+                .map(comment ->
+                        CommentDto.builder()
+                                .id(comment.getId())
+                                .content(comment.getContent())
+                                .reportingDate(comment.getReportingDate())
+                                .name(comment.getAccount().getName())
+                                .email(comment.getAccount().getEmail())
+                                .boardId(this.id)
+                                .build()
+                )
+                .collect(Collectors.toList());
     }
 }

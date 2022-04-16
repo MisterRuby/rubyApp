@@ -1,10 +1,11 @@
 package ruby.rubyapp.board.dto;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.domain.Page;
 import ruby.rubyapp.board.entity.Board;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,7 +26,7 @@ public class BoardListDto {
                         .id(board.getId())
                         .title(board.getTitle())
                         .content(board.getContent())
-                        .reportingDate(board.getReportingDate())
+                        .reportingDate(board.getReportingDate().toLocalDate())
                         .name(board.getAccount().getName())
                         .build()
                 )

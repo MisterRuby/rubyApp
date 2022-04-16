@@ -76,25 +76,6 @@ public class BoardControllerTest extends BoardControllerBaseTest {
                 .andExpect(jsonPath("boardList.length()").value(0));
     }
 
-    @Test
-    @DisplayName("두 글자 미만으로 검색")
-    public void getBoardsByBlankWord() throws Exception {
-        String searchType = "TITLE";
-        String searchWord = "글";
-        String pageNum = "0";
-
-        mockMvc.perform(
-                get("/boards")
-                        .with(oauth2Login())
-                        .param("searchType", searchType)
-                        .param("searchWord", searchWord)
-                        .param("pageNum", pageNum))
-                .andDo(print())
-                .andExpect(jsonPath("totalPages").value(0))
-                .andExpect(jsonPath("pageNum").value(0))
-                .andExpect(jsonPath("boardList").doesNotExist());
-    }
-
 
     @Test
     @DisplayName("게시글 단건 조회")

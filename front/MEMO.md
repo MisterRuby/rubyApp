@@ -13,3 +13,5 @@ page
 
 emottion 설치
 npm i @emotion/react @emotion/styled
+
+npm i swr

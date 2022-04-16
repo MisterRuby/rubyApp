@@ -1,20 +1,33 @@
-import React from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import Login from './pages/Login';
+import useSWR from 'swr';
+import Left from './layouts/Left';
+import TopNev from './layouts/TopNev';
+import Board from './pages/Board';
+import Info from './pages/Info';
+import fetcher from './utils/fetcher';
 
 const App = () => {
+
+  const {data} = useSWR(`${process.env.REACT_APP_SERVER_URL}/accounts`, fetcher, {
+    dedupingInterval : 1000 * 60 * 5,    // 해당 시간을 간격으로 요청함. 간격 사이의 요청은 캐시에서 가져옴
+  });
+
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path='/' element={<Login/>}/>            {/** 로그인/main */}
-        
-        {/* <Route path='/' element={<Left/>}/> */}
-        <Route path='/board'>               {/** 목록화면 */}
-          <Route path=':boardId'></Route>   {/** 상세화면 */}
-          <Route path='add'></Route>        {/** 등록화면 */}
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <div>
+      <BrowserRouter>
+        <TopNev />
+        <Left />
+        <Routes>
+          <Route path='/' element={<Info/>}/>            {/** 로그인/main */}
+          
+          {/* <Route path='/' element={<Left/>}/> */}
+          <Route path='/boards' element={<Board/>}>               {/** 목록화면 */}
+            <Route path=':boardId'></Route>   {/** 상세화면 */}
+            <Route path='add'></Route>        {/** 등록화면 */}
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </div>
   );
 }
 

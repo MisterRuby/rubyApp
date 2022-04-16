@@ -41,7 +41,7 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
 
         // 페이지 번호에 해당하는 목록 조회
         List<Board> boardList = queryFactory.selectFrom(board)
-                .leftJoin(board.account, account)
+                .leftJoin(board.account, account).fetchJoin()
                 .where(getBoardSearchCondition(searchType, searchWord))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())

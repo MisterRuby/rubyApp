@@ -50,7 +50,7 @@ public class BoardController {
     public BoardDto getBoard(@PathVariable Long boardId) {
         Optional<Board> optionalBoard = boardService.getBoard(boardId);
 
-        return new BoardDto(optionalBoard);
+        return optionalBoard.map(BoardDto::new).orElseGet(BoardDto::new);
     }
 
     /**
@@ -86,8 +86,7 @@ public class BoardController {
 
         Optional<Board> optionalBoard = boardService.updateBoard(boardId, boardDto.getTitle(), boardDto.getContent(), account.getEmail());
 
-        return optionalBoard.isPresent() ?
-                new BoardDto(boardService.getBoard(boardId)) : new BoardDto();
+        return optionalBoard.map(BoardDto::new).orElseGet(BoardDto::new);
     }
 
     /**

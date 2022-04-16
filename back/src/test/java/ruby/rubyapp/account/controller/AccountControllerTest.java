@@ -7,8 +7,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.MockBeans;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -18,7 +16,6 @@ import ruby.rubyapp.account.entity.AccountRole;
 import ruby.rubyapp.account.repository.AccountRepository;
 import ruby.rubyapp.config.oauth.CustomOAuth2UserService;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
@@ -70,13 +67,13 @@ public class AccountControllerTest {
     }
 
     @Test
-    @DisplayName("로그인 확인")
+    @DisplayName("리다이렉트")
     public void login() throws Exception {
         mockMvc.perform(
                 get("/")
                 .with(oauth2Login())
         )
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().is3xxRedirection());
     }
 }

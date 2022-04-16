@@ -3,16 +3,18 @@ import { Link } from "react-router-dom";
 
 const Left = () : JSX.Element => {
   return (
-    <LeftBox>
-      <Link to="/board">
+    <Container>
+      <Link to="/boards">
         Board
       </Link>
-    </LeftBox>
+    </Container>
   )
 }
 export default Left;
 
-const LeftBox = styled.div`
+const Container = styled.div`
+  position: absolute;
+  top: 0;
   width: 300px;
   height: 100%;
   padding-top: 100px;

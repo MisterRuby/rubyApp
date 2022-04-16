@@ -5,6 +5,7 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import ruby.rubyapp.board.dto.BoardDto;
 import ruby.rubyapp.board.dto.CommentDto;
+import ruby.rubyapp.board.entity.Board;
 import ruby.rubyapp.board.entity.Comment;
 import ruby.rubyapp.board.service.BoardService;
 import ruby.rubyapp.board.service.CommentService;
@@ -35,10 +36,21 @@ public class CommentController {
 
         Comment comment = commentService.addComment(commentDto.getContent(), account.getEmail(), commentDto.getBoardId());
 
-        return comment != null ?
-                new BoardDto(boardService.getBoard(commentDto.getBoardId())) : new BoardDto();
+        if (comment != null) {
+            Optional<Board> optionalBoard = boardService.getBoard(commentDto.getBoardId());
+            return optionalBoard.map(BoardDto::new).orElseGet(BoardDto::new);
+        }
+
+        return new BoardDto();
     }
 
+    /**
+     * 댓글 수정
+     * @param commentId     댓글 id
+     * @param commentDto    댓글 수정 내용
+     * @param account       작성자(접속자) 계정 정보
+     * @return
+     */
     @PatchMapping("/{commentId}")
     public BoardDto updateComment(
             @PathVariable Long commentId, @RequestBody @Valid CommentDto commentDto, Errors errors, @LoginAccount SessionAccount account) {
@@ -48,8 +60,12 @@ public class CommentController {
 
         Optional<Comment> optionalComment = commentService.updateComment(commentDto.getContent(), account.getEmail(), commentId);
 
-        return optionalComment.isPresent() ?
-                new BoardDto(boardService.getBoard(commentDto.getBoardId())) : new BoardDto();
+        if (optionalComment.isPresent()) {
+            Optional<Board> optionalBoard = boardService.getBoard(commentDto.getBoardId());
+            return optionalBoard.map(BoardDto::new).orElseGet(BoardDto::new);
+        }
+
+        return new BoardDto();
     }
 
     @DeleteMapping("/{commentId}")
