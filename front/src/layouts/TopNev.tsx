@@ -54,8 +54,15 @@ const TopNev = ()  : JSX.Element => {
 export default TopNev;
 
 const Container = styled.div`
+  position: fixed;
+  width: 100%;
+  height: 45px;
   text-align : right;
+  box-sizing: border-box;
   padding: 10px 20px;
+  border-bottom: 1px solid black;
+  background: white;
+  z-index: 9998;
 
   & > a {
     font-size: 18px;
@@ -69,5 +76,5 @@ const Home = styled(Link)`
 `
 
 const Logout = styled.span`
-
+  cursor: pointer;
 `

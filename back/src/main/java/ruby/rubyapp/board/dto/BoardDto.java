@@ -41,7 +41,7 @@ public class BoardDto {
                         CommentDto.builder()
                                 .id(comment.getId())
                                 .content(comment.getContent())
-                                .reportingDate(comment.getReportingDate())
+                                .reportingDate(comment.getReportingDate().toLocalDate())
                                 .name(comment.getAccount().getName())
                                 .email(comment.getAccount().getEmail())
                                 .boardId(this.id)

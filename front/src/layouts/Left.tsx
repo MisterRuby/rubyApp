@@ -2,8 +2,12 @@ import styled from "@emotion/styled";
 import { Link } from "react-router-dom";
 
 const Left = () : JSX.Element => {
+
   return (
     <Container>
+      <Link to="/">
+        Main
+      </Link>
       <Link to="/boards">
         Board
       </Link>
@@ -13,17 +17,18 @@ const Left = () : JSX.Element => {
 export default Left;
 
 const Container = styled.div`
-  position: absolute;
-  top: 0;
+  position: fixed;
+  top: 45px;
   width: 300px;
-  height: 100%;
+  height: calc(100% - 45px);
   padding-top: 100px;
   display: flex;
   flex-direction: column;
   align-items: center;
-
   border-right: 1px solid black;
   box-sizing: border-box;
+  background: white;
+  z-index: 9999;
 
   & > a {
     width: 180px;

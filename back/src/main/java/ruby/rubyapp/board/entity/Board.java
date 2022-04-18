@@ -36,11 +36,10 @@ public class Board {
     private LocalDateTime reportingDate;
 
     /** 연관관계 */
-    @JsonIgnore
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "account_id")
     private Account account;
-    @OneToMany(mappedBy = "board")
+    @OneToMany(mappedBy = "board", fetch = LAZY)
     private List<Comment> commentList = new ArrayList<>();
 
     public Board(String title, String content, Account account) {
