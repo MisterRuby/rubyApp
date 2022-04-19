@@ -42,4 +42,7 @@ public class BoardControllerBaseTest extends BoardBaseTest{
         mockHttpSession = new MockHttpSession();
         mockHttpSession.setAttribute("account", sessionAccount);
     }
+
+
+
 }

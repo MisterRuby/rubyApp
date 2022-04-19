@@ -65,9 +65,9 @@ public class BoardController {
             return new BoardDto();
         }
 
-        Board board = boardService.addBoard(boardDto.getTitle(), boardDto.getContent(), account.getEmail());
+        Board savedBoard = boardService.addBoard(boardDto.getTitle(), boardDto.getContent(), account.getEmail());
 
-        return BoardDto.builder().id(board.getId()).build();
+        return BoardDto.builder().id(savedBoard.getId()).build();
     }
 
     /**

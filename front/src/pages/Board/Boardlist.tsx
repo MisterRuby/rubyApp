@@ -59,7 +59,6 @@ const BoardList = () : JSX.Element => {
     });
     initPageNumList(res.data.pageNum, res.data.totalPages);
 
-    console.log(res.data);
     return res.data;
   }, [boardSearch, initPageNumList]);
     
@@ -94,6 +93,7 @@ const BoardList = () : JSX.Element => {
           <input id="searchWord" ref={searchWordRef}/>
           <button onClick={onSearch}>검색</button>
         </div>
+        <Link to='/boards/add'>새 글 등록</Link>
       </ListHeadBox>
       {
         data && 
@@ -117,9 +117,6 @@ const BoardList = () : JSX.Element => {
           }
         </BoardListBox>
       }
-
-{/* {`comment${comment.id}`} */}
-
       {
         data && 
         <PagingBar>
@@ -206,6 +203,20 @@ const ListHeadBox = styled.div`
       border-radius: 5px;
       background-color: white;
     }
+  }
+
+  & > a {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    transform: translateY(-100%);
+    cursor: pointer;
+    text-decoration: none;
+    color: black;
+    border: 1px solid black;
+    border-radius: 10px;
+    padding: 5px;
+
   }
 `;
 

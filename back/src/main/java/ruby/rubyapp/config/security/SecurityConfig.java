@@ -31,8 +31,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http
                 .authorizeRequests()                                                                    // url별 권한 관리를 설정하는 옵션의 시작점
-                .antMatchers(HttpMethod.GET, "/", "/accounts/**", "/boards/**").permitAll()  // permitAll() : 인증 x
-//                .antMatchers("/boards/**").hasRole(AccountRole.USER.name())
+                .antMatchers( "/", "/accounts/**", "/boards/**").permitAll()  // permitAll() : 인증 x
+                .antMatchers(HttpMethod.POST,"/boards/**").hasRole(AccountRole.USER.name())
                 .anyRequest().authenticated()
                 .expressionHandler(expressionHandler());
 
@@ -41,6 +41,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .httpBasic().disable();
 
         http.oauth2Login()
+                .failureUrl("http://localhost:3000")
                 .userInfoEndpoint()
                 .userService(customOAuth2UserService);                                 // 소셜 로그인 성공시 후속조치를 진행할 인터페이스의 구현체를 등록
 

@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { Route, Routes } from "react-router-dom";
 import BoardInfo from "../pages/Board/BoardInfo";
 import BoardList from "../pages/Board/Boardlist";
+import BoardPost from "../pages/Board/BoardPost";
 import Info from "../pages/Info";
 
 const Main = () => {
@@ -12,6 +13,7 @@ const Main = () => {
         <Route path='/' element={<Info/>}/>
         <Route path='boards' element={<BoardList/>}/>
         <Route path='boards/:boardId' element={<BoardInfo/>}/> 
+        <Route path='boards/add' element={<BoardPost/>}/> 
       </Routes>
     </Container>
     )
