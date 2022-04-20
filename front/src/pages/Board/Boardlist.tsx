@@ -3,7 +3,10 @@ import styled from "@emotion/styled";
 import axios from "axios";
 import { useCallback, useRef, useState } from "react";
 import { Link} from "react-router-dom";
-import useSWR, { KeyedMutator, SWRResponse } from "swr";
+import useSWR from "swr";
+import AccountType from "../../types/account/AccountType";
+import { BoardListType, BoardType } from "../../types/board/BoardType";
+import fetcher from "../../utils/fetcher";
 
 const SEARCH_TYPES = [
   { value: "TITLE", text: "제목" },
@@ -11,37 +14,66 @@ const SEARCH_TYPES = [
   { value: "USERNAME", text: "이름" },
 ];
 
-interface BoardSearchType {
-  searchType : string,
-  searchWord : string,
-  pageNum : number
+declare global {
+  interface Window {
+    boardSearchType: string;
+    boardSearchWord: string;
+    boardPageNum: number;
+  }
 }
 
-interface BoardListType {
-  boardList : [],
-  pageNum: number,
-  totalPages: number
+const SearchTypeSWR = () => {
+  const {data, mutate} = useSWR('boardSearchType', () => window.boardSearchType, {
+    dedupingInterval : 0,
+    revalidateOnFocus : false
+  });
+  return {
+    searchType: data,
+    searchTypeMutate: (type:string) => {
+      window.boardSearchType = type;
+      return mutate();
+    }
+  }
 }
 
-interface BoardType {
-  content: string,
-  id: number,
-  name: string,
-  reportingDate: string,
-  title: string
+const SearchWordSWR = () => {
+  const {data, mutate} = useSWR('boardSearchWord', () => window.boardSearchWord, {
+    dedupingInterval : 0,
+    revalidateOnFocus : false
+  });
+  return {
+    searchWord: data,
+    searchWordMutate: (word:string) => {
+      window.boardSearchWord = word;
+      return mutate();
+    }
+  }
+}
+
+const PageNumSWR = () => {
+  const {data, mutate} = useSWR('boardPageNum', () => window.boardPageNum, {
+    dedupingInterval : 0,
+    revalidateOnFocus : false
+  });
+  return {
+    pageNum: data,
+    pageNumMutate: (pageNum:number) => {
+      window.boardPageNum = pageNum;
+      return mutate();
+    }
+  }
 }
 
 const BoardList = () : JSX.Element => {
 
   const searchTypeRef = useRef<HTMLSelectElement>(null);
   const searchWordRef = useRef<HTMLInputElement>(null);
-  const [boardSearch, setBoardSearch] = useState<BoardSearchType>({
-    searchType : SEARCH_TYPES[0].value,
-    searchWord : '',
-    pageNum : 0
-  })
-  const [pageNumList, setPageNumList] = useState<number[]>([]);
 
+  const {searchType, searchTypeMutate} = SearchTypeSWR();
+  const {searchWord, searchWordMutate} = SearchWordSWR();
+  const {pageNum, pageNumMutate} = PageNumSWR();
+  const [pageNumList, setPageNumList] = useState<number[]>([]);
+  
   const initPageNumList = useCallback((pageNum:number, totalPages:number) => {
     const startNum = Math.floor(pageNum / 10) * 10;
     const endNum = startNum + 9 < totalPages - 1 ? startNum + 9 : totalPages - 1;
@@ -52,31 +84,44 @@ const BoardList = () : JSX.Element => {
     setPageNumList(numArr);
   }, []);
 
-  const searchFetcher = useCallback(async () => {
+  const searchFetcher = useCallback(
+    async ({searchType, searchWord, pageNum} : {searchType:string | undefined, searchWord:string | undefined, pageNum:number | undefined}) => {
+
     const res = await axios.get(`${process.env.REACT_APP_SERVER_URL}/boards`, {
-      params : boardSearch,
+      params : {
+        searchType: searchType || SEARCH_TYPES[0].value,
+        searchWord: searchWord || '',
+        pageNum: pageNum || 0
+      },
       withCredentials: true,
     });
     initPageNumList(res.data.pageNum, res.data.totalPages);
 
     return res.data;
-  }, [boardSearch, initPageNumList]);
+  }, [initPageNumList]);
     
-  const {data, mutate} : SWRResponse<BoardListType, KeyedMutator<BoardListType>> = useSWR(`${process.env.REACT_APP_SERVER_URL}/boards`, () => searchFetcher(), {
+  const {data, mutate} = useSWR<BoardListType>(`${process.env.REACT_APP_SERVER_URL}/boards`, () => searchFetcher({searchType, searchWord, pageNum}), {
     dedupingInterval : 0,
     revalidateOnFocus : false
   });
+
+  const account : AccountType = useSWR(`${process.env.REACT_APP_SERVER_URL}/accounts`, fetcher, {
+    dedupingInterval : 1000 * 60 * 5,
+  }).data;
+
   const onSearch = useCallback(() => {
     const type = searchTypeRef.current?.value || SEARCH_TYPES[0].value;
     const word = searchWordRef.current?.value || '';
-    setBoardSearch({...boardSearch, searchType : type, searchWord: word, pageNum : 0});
-    mutate(searchFetcher(), true);
-  }, [boardSearch, mutate, searchFetcher]);
+    searchTypeMutate(type);
+    searchWordMutate(word);
+    pageNumMutate(0);
+    mutate(searchFetcher({searchType, searchWord, pageNum}), false);
+  }, [mutate, pageNum, pageNumMutate, searchFetcher, searchType, searchTypeMutate, searchWord, searchWordMutate]);
 
   const onPageNum = useCallback((pageNum:number) => {
-    setBoardSearch({...boardSearch, pageNum: pageNum});
-    mutate(searchFetcher(), true);
-  }, [boardSearch, mutate, searchFetcher]);
+    pageNumMutate(pageNum);
+    mutate(searchFetcher({ searchType, searchWord, pageNum}), false);
+  }, [mutate, pageNumMutate, searchFetcher, searchType, searchWord]);
 
   return (
     <ListBox>
@@ -93,7 +138,7 @@ const BoardList = () : JSX.Element => {
           <input id="searchWord" ref={searchWordRef}/>
           <button onClick={onSearch}>검색</button>
         </div>
-        <Link to='/boards/add'>새 글 등록</Link>
+        {account && <Link to='/boards/add'>새 글 등록</Link>}
       </ListHeadBox>
       {
         data && 

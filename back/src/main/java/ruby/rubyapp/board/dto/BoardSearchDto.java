@@ -13,7 +13,7 @@ public class BoardSearchDto {
 
     @NotNull(message = "검색타입은 반드시 지정되어야 합니다.")
     private String searchType;
-    @NotNull(message = "검색어는 최소 두글자 이상이어야 합니다.")
+    @NotNull
 //    @Length(min = 2)
     private String searchWord;
     @Min(value = 0, message = "페이지 번호는 0이상이어야 합니다.")

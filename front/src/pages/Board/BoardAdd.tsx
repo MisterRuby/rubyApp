@@ -2,14 +2,10 @@ import styled from "@emotion/styled";
 import axios from "axios";
 import { useCallback, useRef } from "react";
 import useSWR from "swr";
+import AccountType from "../../types/account/AccountType";
 import fetcher from "../../utils/fetcher";
 
-interface AccountType {
-  email: string,
-  name: string,
-}
-
-const BoardPost = () => {
+const BoardAdd = () => {
   const titleRef = useRef<HTMLInputElement>(null);
   const contentRef = useRef<HTMLTextAreaElement>(null);
 
@@ -55,7 +51,7 @@ const BoardPost = () => {
   );
 }
 
-export default BoardPost;
+export default BoardAdd;
 
 const Container = styled.div`
   padding: 10px;

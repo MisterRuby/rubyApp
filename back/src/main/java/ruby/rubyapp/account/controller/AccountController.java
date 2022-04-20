@@ -41,7 +41,7 @@ public class AccountController {
      */
     @GetMapping("/accounts")
     public AccountDto checkLogin(@LoginAccount SessionAccount account) {
-        return account != null ? new AccountDto(account.getName(), account.getEmail()) : null;
+        return account != null ? new AccountDto(account.getName(), account.getEmail(), account.getAccountRole()) : null;
     }
 
     /**

@@ -16,7 +16,7 @@ const oAuthList = [
   },
 ];
 
-const TopNev = ()  : JSX.Element => {
+const TopNev = () : JSX.Element => {
   const {data, mutate} = useSWR(`${process.env.REACT_APP_SERVER_URL}/accounts`, fetcher, {
     dedupingInterval : 1000 * 60 * 5,
   });
@@ -27,9 +27,11 @@ const TopNev = ()  : JSX.Element => {
     })
     .then(()=> {
       // 로그아웃 요청시 data 를 바로 바꿔줘야함
-      mutate(false, false);
+      mutate(undefined, false);
     })
   }, [mutate]);
+
+  console.log(data);
 
   return(
     <Container>

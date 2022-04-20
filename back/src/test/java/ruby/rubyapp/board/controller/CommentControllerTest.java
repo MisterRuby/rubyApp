@@ -25,7 +25,6 @@ public class CommentControllerTest extends BoardControllerBaseTest {
         Board board = allBoard.get(0);
         Long boardId = board.getId();
         String content = "테스트 댓글 내용 등록입니다.";
-        int commentSize = board.getCommentList().size();
 
         CommentDto commentDto = CommentDto.builder()
                 .boardId(boardId)
@@ -40,8 +39,7 @@ public class CommentControllerTest extends BoardControllerBaseTest {
                 .content(objectMapper.writeValueAsString(commentDto))
         )
                 .andDo(print())
-                .andExpect(jsonPath("id").value(boardId))
-                .andExpect(jsonPath("commentList.length()").value(++commentSize));
+                .andExpect(jsonPath("id").exists());
     }
 
     @Test
@@ -96,7 +94,6 @@ public class CommentControllerTest extends BoardControllerBaseTest {
         List<Board> allBoard = boardRepository.findAll();
         Board board = allBoard.get(0);
         Comment comment = board.getCommentList().get(0);
-        int commentSize = board.getCommentList().size();
 
         Long boardId = board.getId();
         Long commentId = comment.getId();
@@ -115,8 +112,7 @@ public class CommentControllerTest extends BoardControllerBaseTest {
                         .content(objectMapper.writeValueAsString(commentDto))
         )
                 .andDo(print())
-                    .andExpect(jsonPath("id").value(boardId))
-                    .andExpect(jsonPath("commentList.length()").value(commentSize));
+                    .andExpect(jsonPath("id").value(commentId));
     }
 
     @Test

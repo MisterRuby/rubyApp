@@ -86,7 +86,9 @@ public class BoardController {
 
         Optional<Board> optionalBoard = boardService.updateBoard(boardId, boardDto.getTitle(), boardDto.getContent(), account.getEmail());
 
-        return optionalBoard.map(BoardDto::new).orElseGet(BoardDto::new);
+        Long updatedBoardId = optionalBoard.map(Board::getId).orElse(null);
+
+        return BoardDto.builder().id(updatedBoardId).build();
     }
 
     /**

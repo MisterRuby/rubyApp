@@ -3,11 +3,8 @@ package ruby.rubyapp.board.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
-import ruby.rubyapp.board.dto.BoardDto;
 import ruby.rubyapp.board.dto.CommentDto;
-import ruby.rubyapp.board.entity.Board;
 import ruby.rubyapp.board.entity.Comment;
-import ruby.rubyapp.board.service.BoardService;
 import ruby.rubyapp.board.service.CommentService;
 import ruby.rubyapp.config.oauth.LoginAccount;
 import ruby.rubyapp.config.oauth.SessionAccount;
@@ -20,7 +17,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CommentController {
 
-    private final BoardService boardService;
     private final CommentService commentService;
 
     /**
@@ -29,19 +25,14 @@ public class CommentController {
      * @return
      */
     @PostMapping
-    public BoardDto addComment(@RequestBody @Valid CommentDto commentDto, Errors errors, @LoginAccount SessionAccount account) {
+    public CommentDto addComment(@RequestBody @Valid CommentDto commentDto, Errors errors, @LoginAccount SessionAccount account) {
         if (errors.hasErrors()) {
-            return new BoardDto();
+            return new CommentDto();
         }
 
         Comment comment = commentService.addComment(commentDto.getContent(), account.getEmail(), commentDto.getBoardId());
 
-        if (comment != null) {
-            Optional<Board> optionalBoard = boardService.getBoard(commentDto.getBoardId());
-            return optionalBoard.map(BoardDto::new).orElseGet(BoardDto::new);
-        }
-
-        return new BoardDto();
+        return CommentDto.builder().id(comment.getId()).build();
     }
 
     /**
@@ -52,22 +43,24 @@ public class CommentController {
      * @return
      */
     @PatchMapping("/{commentId}")
-    public BoardDto updateComment(
+    public CommentDto updateComment(
             @PathVariable Long commentId, @RequestBody @Valid CommentDto commentDto, Errors errors, @LoginAccount SessionAccount account) {
         if (errors.hasErrors()) {
-            return new BoardDto();
+            return new CommentDto();
         }
 
         Optional<Comment> optionalComment = commentService.updateComment(commentDto.getContent(), account.getEmail(), commentId);
+        Long savedCommentId = optionalComment.map(Comment::getId).orElse(null);
 
-        if (optionalComment.isPresent()) {
-            Optional<Board> optionalBoard = boardService.getBoard(commentDto.getBoardId());
-            return optionalBoard.map(BoardDto::new).orElseGet(BoardDto::new);
-        }
-
-        return new BoardDto();
+        return optionalComment.isPresent() ? CommentDto.builder().id(savedCommentId).build() : new CommentDto();
     }
 
+    /**
+     * 댓글 삭제
+     * @param commentId     댓글 id
+     * @param account       작성자(접속자) 계정 정보
+     * @return
+     */
     @DeleteMapping("/{commentId}")
     public CommentDto deleteComment (@PathVariable Long commentId, @LoginAccount SessionAccount account) {
         Long deleteCommentId = commentService.deleteComment(commentId, account.getEmail());

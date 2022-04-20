@@ -1,73 +1,92 @@
 import styled from "@emotion/styled";
 import axios from "axios";
+import { useCallback, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import useSWR from "swr";
+import AccountType from "../../types/account/AccountType";
+import { BoardType, CommentType } from "../../types/board/BoardType";
 import fetcher from "../../utils/fetcher";
-
-interface BoardType {
-  content: string,
-  email: string,
-  id: number,
-  name: string,
-  reportingDate: string,
-  title: string,
-  commentList: []
-}
-
-interface CommentType {
-  boardId: number,
-  content: string,
-  email: string,
-  id: number,
-  name: string,
-  reportingDate: string,
-}
-
-interface AccountType {
-  email: string,
-  name: string,
-}
 
 const BoardInfo = () : JSX.Element => {
   const params = useParams();
-  const boardId = params.boardId;
+  const [boardId] = useState(params.boardId);
+  const commedntContentRef = useRef<HTMLTextAreaElement>(null);
 
-  const boardInfoFetcher = async (url : string) => {
-    const res = await axios.get(url, {
-      withCredentials: true,
-    });
-    return res.data;
-  }
-
-  const board : BoardType = useSWR(`${process.env.REACT_APP_SERVER_URL}/boards/${boardId}`, boardInfoFetcher , {
+  const {data, mutate} = useSWR<BoardType>(`${process.env.REACT_APP_SERVER_URL}/boards/${boardId}`, fetcher , {
     dedupingInterval : 0,
     revalidateOnFocus : false
-  }).data;
+  });
 
   const account : AccountType = useSWR(`${process.env.REACT_APP_SERVER_URL}/accounts`, fetcher, {
     dedupingInterval : 1000 * 60 * 5,
   }).data;
 
+  const onDeleteBoard = useCallback(async(boardId:number) => {
+    const res = await axios.delete(`${process.env.REACT_APP_SERVER_URL}/boards/${boardId}`, 
+      {withCredentials: true}
+    );
+    if (res.data && res.data.id) {
+      alert("게시글이 삭제되었습니다.");
+      document.location.replace(`/boards/list/0`);
+    }
+  }, []);
+
+  const onAddComment = useCallback(async() => {
+    const res = await axios.post(`${process.env.REACT_APP_SERVER_URL}/comments`, {
+      content : commedntContentRef.current?.value,
+      boardId : boardId
+    },
+    {withCredentials: true}
+    );
+    if (res.data && res.data.id) {
+      alert("댓글이 등록되었습니다.");
+      const board = fetcher(`${process.env.REACT_APP_SERVER_URL}/boards/${boardId}`);
+      mutate(board, false);
+    }
+  }, [boardId, mutate]);
+
+  const onDeleteComment = useCallback(async(commentId:number) => {
+    const res = await axios.delete(`${process.env.REACT_APP_SERVER_URL}/comments/${commentId}`, 
+      {withCredentials: true}
+    );
+    if (res.data && res.data.id) {
+      alert("댓글이 삭제되었습니다.");
+      const board = fetcher(`${process.env.REACT_APP_SERVER_URL}/boards/${boardId}`);
+      mutate(board, false);
+    }
+  }, [boardId, mutate]);
+
+  // TODO - 게시글 수정, 댓글 수정
+  // 댓글 수정 버튼 클릭시 textarea 가 활성화되고 기존 입력된 내용의 영역은 비활성화
+
+  const onMoveBoardUpdate = useCallback(() => {
+    document.location.replace(`/boards/${boardId}/update`);
+  }, [boardId]);
+
   return (
-    board &&
+    !data ? <></> :
     <Container>
-      <h2>제목 : {board.title}</h2>
-      <span>글쓴이 : {board.name}</span>
-      <span>등록일 : {board.reportingDate}</span>
+      <h2>제목 : {data.title}</h2>
+      <span>글쓴이 : {data.name}</span>
+      <span>등록일 : {data.reportingDate}</span>
+      {data.email === account.email && <button onClick={onMoveBoardUpdate}>수정</button>}
+      {data.email === account.email && <button onClick={() => onDeleteBoard(data.id)}>삭제</button>}
       <hr />
-      <p>{board.content}</p>
+      <p>{data.content}</p>
       <hr />
 
       {
-        board.commentList && board.commentList.length > 0 &&
+        data.commentList && data.commentList.length > 0 &&
         <CommentList>
           <h3>댓글</h3>
           {
-            board.commentList &&
-            board.commentList.map((comment:CommentType) => (
+            data.commentList &&
+            data.commentList.map((comment:CommentType) => (
               <div key={`comment${comment.id}`}>
                 <span>{comment.name}</span>
                 <span>{comment.reportingDate}</span>
+                {account.email === comment.email && <button>수정</button>}
+                {account.email === comment.email && <button onClick={() => onDeleteComment(comment.id)}>삭제</button>}
                 <p>{comment.content}</p>
               </div>
             ))
@@ -79,8 +98,8 @@ const BoardInfo = () : JSX.Element => {
         account &&
         <CommentWrite>
           <span>{account.name}</span>
-          <textarea placeholder="댓글 쓰기"></textarea>
-          <button>등록</button>
+          <textarea placeholder="댓글 쓰기" ref={commedntContentRef}></textarea>
+          <button onClick={onAddComment}>등록</button>
         </CommentWrite>
       }
     </Container>
@@ -119,6 +138,12 @@ const CommentList = styled.div`
 
   & > div > span {
     margin-right: 20px;
+  }
+
+  & > div > button {
+    cursor: pointer;
+    border: none;
+    background-color: white;
   }
 `;
 
