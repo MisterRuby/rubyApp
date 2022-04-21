@@ -31,8 +31,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http
                 .authorizeRequests()                                                                    // url별 권한 관리를 설정하는 옵션의 시작점
-                .antMatchers( "/", "/accounts/**", "/boards/**").permitAll()  // permitAll() : 인증 x
-                .antMatchers(HttpMethod.POST,"/boards/**").hasRole(AccountRole.USER.name())
+                .antMatchers(HttpMethod.GET, "/**").permitAll()                              // permitAll() : 인증 x
+//                .antMatchers(HttpMethod.POST,"/**").hasRole(AccountRole.USER.name())
+//                .antMatchers(HttpMethod.PUT,"/**").hasRole(AccountRole.USER.name())
+//                .antMatchers(HttpMethod.PATCH,"/**").hasRole(AccountRole.USER.name())
+//                .antMatchers(HttpMethod.DELETE,"/**").hasRole(AccountRole.USER.name())
                 .anyRequest().authenticated()
                 .expressionHandler(expressionHandler());
 

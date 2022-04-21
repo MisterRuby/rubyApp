@@ -31,8 +31,6 @@ const TopNev = () : JSX.Element => {
     })
   }, [mutate]);
 
-  console.log(data);
-
   return(
     <Container>
       <Home to="/">

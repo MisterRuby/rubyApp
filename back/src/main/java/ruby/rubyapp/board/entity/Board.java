@@ -1,6 +1,5 @@
 package ruby.rubyapp.board.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,6 +40,8 @@ public class Board {
     private Account account;
     @OneToMany(mappedBy = "board", fetch = LAZY)
     private List<Comment> commentList = new ArrayList<>();
+    @OneToMany(mappedBy = "board", fetch = LAZY)
+    private List<BoardFileRecord> fileList = new ArrayList<>();
 
     public Board(String title, String content, Account account) {
         this.title = title;

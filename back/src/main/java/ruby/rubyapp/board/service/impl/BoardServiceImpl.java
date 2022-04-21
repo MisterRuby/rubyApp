@@ -11,6 +11,7 @@ import ruby.rubyapp.account.entity.Account;
 import ruby.rubyapp.account.repository.AccountRepository;
 import ruby.rubyapp.board.entity.Board;
 import ruby.rubyapp.board.entity.SearchType;
+import ruby.rubyapp.board.repository.BoardFileRepository;
 import ruby.rubyapp.board.repository.BoardRepository;
 import ruby.rubyapp.board.repository.CommentRepository;
 import ruby.rubyapp.board.service.BoardService;
@@ -29,6 +30,7 @@ public class BoardServiceImpl implements BoardService {
     private final AccountRepository accountRepository;
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;
+    private final BoardFileRepository boardFileRepository;
 
     /**
      * 게시글 등록

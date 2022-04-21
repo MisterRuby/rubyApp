@@ -28,6 +28,8 @@ public class QBoard extends EntityPathBase<Board> {
 
     public final StringPath content = createString("content");
 
+    public final ListPath<BoardFileRecord, QBoardFileRecord> fileList = this.<BoardFileRecord, QBoardFileRecord>createList("fileList", BoardFileRecord.class, QBoardFileRecord.class, PathInits.DIRECT2);
+
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
     public final DateTimePath<java.time.LocalDateTime> reportingDate = createDateTime("reportingDate", java.time.LocalDateTime.class);

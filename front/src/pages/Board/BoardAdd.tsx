@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import axios from "axios";
-import { useCallback, useRef } from "react";
+import { Dispatch, SetStateAction, useCallback, useRef, useState } from "react";
 import useSWR from "swr";
 import AccountType from "../../types/account/AccountType";
 import fetcher from "../../utils/fetcher";
@@ -8,6 +8,10 @@ import fetcher from "../../utils/fetcher";
 const BoardAdd = () => {
   const titleRef = useRef<HTMLInputElement>(null);
   const contentRef = useRef<HTMLTextAreaElement>(null);
+  const commentContentRef = useRef<HTMLInputElement>(null);
+  // const [formData, setFormData] = useState(new FormData());
+  const [fileList, setFileList] : [fileList:File[], setFileList:Dispatch<SetStateAction<File[]>>] = useState<File[]>([]);
+  const [fileCount, setFileCount] = useState(0);
 
   const account : AccountType = useSWR(`${process.env.REACT_APP_SERVER_URL}/accounts`, fetcher, {
     dedupingInterval : 1000 * 60 * 5,
@@ -26,18 +30,63 @@ const BoardAdd = () => {
       return;
     }
 
-    const res = await axios.post(`${process.env.REACT_APP_SERVER_URL}/boards`, {
-      title: titleRef.current?.value,
-      content: contentRef.current?.value
-    },
-    {withCredentials: true}
+    const formData = new FormData();
+
+    formData.delete("files");
+    fileList.forEach(file => {
+      if (file) {
+        formData.append("files", file);
+      }
+    });
+    formData.delete("board");
+    formData.append("board", new Blob([JSON.stringify({
+      title: title,
+      content: content
+    })], { type: "application/json" }));
+
+    const res = await axios.post(`${process.env.REACT_APP_SERVER_URL}/boards`, formData,
+    {
+      withCredentials: true,
+      headers : {
+        "Content-Type" : "multipart/form-data",
+      }
+    }
     );
 
     if (res.data && res.data.id) {
       alert("글이 등록되었습니다.");
       document.location.replace(`/boards/${res.data.id}`);
     }
-  }, []);
+  }, [fileList]);
+
+  
+
+  const onChangeFileList = useCallback(() => {
+    const files = commentContentRef.current?.files;
+    const beforeList = fileList;
+    if (files?.length && files?.length + fileCount > 5) {
+      alert("파일은 최대 5개까지만 업로드 할 수 있습니다.");
+      return;
+    }
+
+    if (files?.length) {
+      for (let i = 0; i < files?.length; i++) {
+        beforeList.push(files[i]);
+      }
+      setFileList([...beforeList]);
+      setFileCount(fileCount + files?.length);
+    }
+  }, [fileCount, fileList]);
+
+  const onDeleteFile = useCallback((idx:number) =>{
+    const beforeList = fileList;
+    delete beforeList[idx];
+    setFileList([...beforeList]);
+    setFileCount(fileCount - 1);
+  }, [fileCount, fileList])
+
+  // TODO - 저장 시점에
+
 
   return (
     account &&
@@ -45,6 +94,17 @@ const BoardAdd = () => {
       <h2>게시글 등록</h2>
       <input placeholder="제목을 입력해주세요." ref={titleRef}/>
       <textarea placeholder="내용을 입력해주세요." ref={contentRef}/>
+      <div>
+        파일 등록 : <input type="file" multiple placeholder="파일 등록" ref={commentContentRef} onChange={onChangeFileList}/>
+      </div>
+      {
+        fileList.map((file:File, idx:number) => file && (
+          <div key={file.name + idx}>
+            <span>{file.name}</span>
+            <button onClick={() => onDeleteFile(idx)}>삭제</button>
+          </div>
+        ))
+      }
       <button onClick={onSubmit}>등록</button>
       
     </Container>
@@ -81,5 +141,11 @@ const Container = styled.div`
     border: 1px solid black;
     border-radius: 5px;
     background-color: white;
-}
+  }
+
+  & > div > input {
+    border: 1px solid black;
+    border-radius: 5px;
+    background-color: white;
+  }
 `;

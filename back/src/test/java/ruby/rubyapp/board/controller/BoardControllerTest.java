@@ -4,10 +4,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.mock.web.MockPart;
 import ruby.rubyapp.board.BoardControllerBaseTest;
 import ruby.rubyapp.board.dto.BoardDto;
 import ruby.rubyapp.board.entity.Board;
 import ruby.rubyapp.board.entity.SearchType;
+
+import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
@@ -122,12 +126,20 @@ public class BoardControllerTest extends BoardControllerBaseTest {
         boardDto.setTitle(title);
         boardDto.setContent(content);
 
+        MockMultipartFile file = new MockMultipartFile("files", "test.txt", "multipart/form-data", "test".getBytes(StandardCharsets.UTF_8));
+        String dtoContent = objectMapper.writeValueAsString(boardDto);
+        MockMultipartFile jsonDto = new MockMultipartFile("board", "jsonDto", "application/json", dtoContent.getBytes(StandardCharsets.UTF_8));
+
         mockMvc.perform(
-                post("/boards")
+                multipart("/boards")
+                .file(file)
+                .file(jsonDto)
+//                post("/boards")
                 .session(mockHttpSession)
                 .with(oauth2Login())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(boardDto))
+//                .header("Content-Type" , "multipart/form-data")
+//                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+//                .content(objectMapper.writeValueAsString(boardDto))
         )
                 .andDo(print())
                 .andExpect(jsonPath("id").exists());
@@ -203,10 +215,7 @@ public class BoardControllerTest extends BoardControllerBaseTest {
                         .content(objectMapper.writeValueAsString(boardDto))
         )
                 .andDo(print())
-                .andExpect(jsonPath("id").value(boardId))
-                .andExpect(jsonPath("title").value(title))
-                .andExpect(jsonPath("content").value(content))
-                .andExpect(jsonPath("commentList.length()").value(5));
+                .andExpect(jsonPath("id").value(boardId));
     }
 
     @Test

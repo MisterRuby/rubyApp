@@ -10,7 +10,8 @@ import fetcher from "../../utils/fetcher";
 const BoardInfo = () : JSX.Element => {
   const params = useParams();
   const [boardId] = useState(params.boardId);
-  const commedntContentRef = useRef<HTMLTextAreaElement>(null);
+
+  const commentContentRef = useRef<HTMLTextAreaElement>(null);
 
   const {data, mutate} = useSWR<BoardType>(`${process.env.REACT_APP_SERVER_URL}/boards/${boardId}`, fetcher , {
     dedupingInterval : 0,
@@ -27,13 +28,13 @@ const BoardInfo = () : JSX.Element => {
     );
     if (res.data && res.data.id) {
       alert("게시글이 삭제되었습니다.");
-      document.location.replace(`/boards/list/0`);
+      document.location.replace(`/boards`);
     }
   }, []);
 
   const onAddComment = useCallback(async() => {
     const res = await axios.post(`${process.env.REACT_APP_SERVER_URL}/comments`, {
-      content : commedntContentRef.current?.value,
+      content : commentContentRef.current?.value,
       boardId : boardId
     },
     {withCredentials: true}
@@ -85,7 +86,7 @@ const BoardInfo = () : JSX.Element => {
               <div key={`comment${comment.id}`}>
                 <span>{comment.name}</span>
                 <span>{comment.reportingDate}</span>
-                {account.email === comment.email && <button>수정</button>}
+                {/* {account.email === comment.email && <button>수정</button>} */}
                 {account.email === comment.email && <button onClick={() => onDeleteComment(comment.id)}>삭제</button>}
                 <p>{comment.content}</p>
               </div>
@@ -98,7 +99,7 @@ const BoardInfo = () : JSX.Element => {
         account &&
         <CommentWrite>
           <span>{account.name}</span>
-          <textarea placeholder="댓글 쓰기" ref={commedntContentRef}></textarea>
+          <textarea placeholder="댓글 쓰기" ref={commentContentRef}></textarea>
           <button onClick={onAddComment}>등록</button>
         </CommentWrite>
       }

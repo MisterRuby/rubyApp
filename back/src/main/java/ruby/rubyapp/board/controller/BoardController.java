@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ruby.rubyapp.board.dto.BoardDto;
 import ruby.rubyapp.board.dto.BoardListDto;
 import ruby.rubyapp.board.dto.BoardSearchDto;
@@ -60,13 +61,16 @@ public class BoardController {
      * @return
      */
     @PostMapping
-    public BoardDto addBoard(@RequestBody @Valid BoardDto boardDto, Errors errors, @LoginAccount SessionAccount account) {
+    public BoardDto addBoard(
+            @RequestPart("board") @Valid BoardDto boardDto, Errors errors,
+            @RequestPart(name = "files" , required = false) MultipartFile[] files, @LoginAccount SessionAccount account) {
         if (errors.hasErrors()) {
             return new BoardDto();
         }
 
         Board savedBoard = boardService.addBoard(boardDto.getTitle(), boardDto.getContent(), account.getEmail());
-
+        // TODO - 파일 저장 및 파일 레코드 생성
+        
         return BoardDto.builder().id(savedBoard.getId()).build();
     }
 

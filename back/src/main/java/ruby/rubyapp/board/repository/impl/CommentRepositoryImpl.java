@@ -6,7 +6,6 @@ import ruby.rubyapp.board.entity.Board;
 import ruby.rubyapp.board.entity.Comment;
 import ruby.rubyapp.board.repository.CommentRepositoryCustom;
 
-import javax.persistence.EntityManager;
 import java.util.List;
 
 import static ruby.rubyapp.account.entity.QAccount.account;
@@ -16,7 +15,6 @@ import static ruby.rubyapp.board.entity.QComment.comment;
 public class CommentRepositoryImpl implements CommentRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
-    private final EntityManager entityManager;
 
     /**
      * 게시글에 연관된 댓글 목록 조회
