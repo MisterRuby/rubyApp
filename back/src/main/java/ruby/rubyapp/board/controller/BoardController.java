@@ -1,7 +1,9 @@
 package ruby.rubyapp.board.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,11 +13,16 @@ import ruby.rubyapp.board.dto.BoardSearchDto;
 import ruby.rubyapp.board.entity.Board;
 import ruby.rubyapp.board.entity.SearchType;
 import ruby.rubyapp.board.service.BoardService;
+import ruby.rubyapp.board.util.BoardValidation;
 import ruby.rubyapp.config.oauth.LoginAccount;
 import ruby.rubyapp.config.oauth.SessionAccount;
 
 import javax.validation.Valid;
-import java.util.Optional;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 
 @RestController
 @RequestMapping(value = "/boards")
@@ -63,14 +70,17 @@ public class BoardController {
     @PostMapping
     public BoardDto addBoard(
             @RequestPart("board") @Valid BoardDto boardDto, Errors errors,
-            @RequestPart(name = "files" , required = false) MultipartFile[] files, @LoginAccount SessionAccount account) {
+            @RequestPart(name = "files" , required = false) List<MultipartFile> files, @LoginAccount SessionAccount account) throws IOException {
         if (errors.hasErrors()) {
             return new BoardDto();
         }
 
-        Board savedBoard = boardService.addBoard(boardDto.getTitle(), boardDto.getContent(), account.getEmail());
-        // TODO - 파일 저장 및 파일 레코드 생성
-        
+        if (files.size() == 0) files = new ArrayList<>();
+
+        if (!BoardValidation.validateFileExtension(files)) return new BoardDto();
+
+        Board savedBoard = boardService.addBoard(boardDto.getTitle(), boardDto.getContent(), account.getEmail(), files);
+
         return BoardDto.builder().id(savedBoard.getId()).build();
     }
 

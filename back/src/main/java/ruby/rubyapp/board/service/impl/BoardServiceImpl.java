@@ -1,15 +1,18 @@
 package ruby.rubyapp.board.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import ruby.rubyapp.account.entity.Account;
 import ruby.rubyapp.account.repository.AccountRepository;
 import ruby.rubyapp.board.entity.Board;
+import ruby.rubyapp.board.entity.BoardFileRecord;
 import ruby.rubyapp.board.entity.SearchType;
 import ruby.rubyapp.board.repository.BoardFileRepository;
 import ruby.rubyapp.board.repository.BoardRepository;
@@ -17,6 +20,13 @@ import ruby.rubyapp.board.repository.CommentRepository;
 import ruby.rubyapp.board.service.BoardService;
 import ruby.rubyapp.board.util.BoardValidation;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -32,6 +42,9 @@ public class BoardServiceImpl implements BoardService {
     private final CommentRepository commentRepository;
     private final BoardFileRepository boardFileRepository;
 
+    @Value("${file.uploadDir}")
+    private String uploadDir;
+
     /**
      * 게시글 등록
      * @param title         게시글 제목
@@ -40,14 +53,28 @@ public class BoardServiceImpl implements BoardService {
      * @return              등록된 게시글
      */
     @Override
-    public Board addBoard(String title, String content, String accountEmail) {
+    public Board addBoard(String title, String content, String accountEmail, List<MultipartFile> files) throws IOException {
         if (!BoardValidation.validateAddBoard(title, content, accountEmail)) return new Board();
 
         Optional<Account> optionalAccount = accountRepository.findByEmail(accountEmail);
 
         if (optionalAccount.isPresent()) {
             Board board = new Board(title, content, optionalAccount.get());
-            return boardRepository.save(board);
+            Board savedBoard = boardRepository.save(board);
+
+            for (MultipartFile file : files) {
+                BoardFileRecord boardFileRecord = BoardFileRecord.builder()
+                        .originFileName(file.getOriginalFilename())
+                        .fileSize(file.getSize())
+                        .board(board)
+                        .build();
+
+                Path uploadPath = Paths.get(uploadDir + File.separator + boardFileRecord.getStoredFileName());
+                Files.copy(file.getInputStream(), uploadPath, StandardCopyOption.REPLACE_EXISTING);
+
+                boardFileRepository.save(boardFileRecord);
+            }
+            return savedBoard;
         }
 
         return new Board();

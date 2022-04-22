@@ -5,13 +5,16 @@ import useSWR from "swr";
 import AccountType from "../../types/account/AccountType";
 import fetcher from "../../utils/fetcher";
 
+const MAX_FILE_SIZE : number = parseInt(`${process.env.REACT_APP_MAX_FILE_SIZE}`);
+const extSet = new Set(["txt", "png", "img", "pdf", "xls"]);
+
 const BoardAdd = () => {
   const titleRef = useRef<HTMLInputElement>(null);
   const contentRef = useRef<HTMLTextAreaElement>(null);
   const commentContentRef = useRef<HTMLInputElement>(null);
-  // const [formData, setFormData] = useState(new FormData());
   const [fileList, setFileList] : [fileList:File[], setFileList:Dispatch<SetStateAction<File[]>>] = useState<File[]>([]);
   const [fileCount, setFileCount] = useState(0);
+  const [fileSize, setFileSize] = useState(0);
 
   const account : AccountType = useSWR(`${process.env.REACT_APP_SERVER_URL}/accounts`, fetcher, {
     dedupingInterval : 1000 * 60 * 5,
@@ -64,29 +67,44 @@ const BoardAdd = () => {
   const onChangeFileList = useCallback(() => {
     const files = commentContentRef.current?.files;
     const beforeList = fileList;
+  
     if (files?.length && files?.length + fileCount > 5) {
       alert("파일은 최대 5개까지만 업로드 할 수 있습니다.");
       return;
     }
-
+    
     if (files?.length) {
+      let beforeFileSize = fileSize;
+      for (let i = 0; i < files?.length; i++) {
+        beforeFileSize += files[i].size;
+        if(beforeFileSize > MAX_FILE_SIZE) {
+          alert("파일 업로드 용량은 최대 20MB를 초과할 수 없습니다.");
+          return;
+        }
+
+        const ext = files[i].name.substring(files[i].name.lastIndexOf('.') + 1);
+        if (!extSet.has(ext)) {
+          alert("txt, png, img, pdf, xls 이외의 확장자인 파일은 저장할 수 없습니다.");
+          return;
+        }
+      }
+
       for (let i = 0; i < files?.length; i++) {
         beforeList.push(files[i]);
       }
+      setFileSize(beforeFileSize);
       setFileList([...beforeList]);
       setFileCount(fileCount + files?.length);
     }
-  }, [fileCount, fileList]);
+  }, [fileCount, fileList, fileSize]);
 
   const onDeleteFile = useCallback((idx:number) =>{
     const beforeList = fileList;
+    setFileSize(fileSize - beforeList[idx].size);
     delete beforeList[idx];
     setFileList([...beforeList]);
     setFileCount(fileCount - 1);
-  }, [fileCount, fileList])
-
-  // TODO - 저장 시점에
-
+  }, [fileCount, fileList, fileSize])
 
   return (
     account &&

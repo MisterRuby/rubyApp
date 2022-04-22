@@ -1,0 +1,5 @@
+file.uploadDir : E:\uploadFiles
+spring:
+  servlet:
+    multipart:
+      max-file-size: 20MB

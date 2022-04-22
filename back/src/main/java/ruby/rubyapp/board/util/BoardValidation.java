@@ -1,5 +1,9 @@
 package ruby.rubyapp.board.util;
 
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.*;
+
 /**
  * Board 관련 검증 클래스
  */
@@ -58,5 +62,32 @@ public class BoardValidation {
         return !(content == null || content.isBlank()
                 || accountEmail == null || accountEmail.isBlank()
                 || commentId == null);
+    }
+
+    /**
+     * 업로드 파일 확장자 검사
+     * @param files     업로드 파일 목록
+     * @return
+     */
+    public static boolean validateFileExtension (List<MultipartFile> files) {
+        Set<String> extSet = new HashSet<>(Arrays.asList("txt", "png", "img", "pdf", "xls"));
+
+        boolean result = true;
+
+        for (MultipartFile file : files) {
+            String fileName = file.getOriginalFilename();
+            if (fileName == null) {
+                result = false;
+                break;
+            }
+
+            String extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+            if (!extSet.contains(extension)) {
+                result = false;
+                break;
+            }
+        }
+
+        return result;
     }
 }

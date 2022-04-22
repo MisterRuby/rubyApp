@@ -1,9 +1,12 @@
 package ruby.rubyapp.board.service;
 
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 import ruby.rubyapp.board.entity.Board;
 import ruby.rubyapp.board.entity.SearchType;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -16,9 +19,10 @@ public interface BoardService {
      * @param title         게시글 제목
      * @param content       게시글 내용
      * @param accountEmail  작성자 email
+     * @param files         업로드 파일 목록
      * @return              등록된 게시글
      */
-    Board addBoard(String title, String content, String accountEmail);
+    Board addBoard(String title, String content, String accountEmail, List<MultipartFile> files) throws IOException;
 
     /**
      * 게시글 단건, 연관된 댓글목록 조회

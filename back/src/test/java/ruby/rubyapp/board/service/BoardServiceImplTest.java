@@ -4,11 +4,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.web.multipart.MultipartFile;
 import ruby.rubyapp.board.BoardBaseTest;
 import ruby.rubyapp.board.entity.Board;
 import ruby.rubyapp.board.entity.Comment;
 import ruby.rubyapp.board.entity.SearchType;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,7 +23,7 @@ class BoardServiceImplTest extends BoardBaseTest {
 
     @Test
     @DisplayName("제목, 내용, 사용자 정보가 모두 있을 때 게시글 등록 성공")
-    public void successRegisterBoard() {
+    public void successRegisterBoard() throws IOException {
         System.out.println("BoardServiceImplTest.successRegisterBoard");
         // 제목과 내용, 사용자 정보 셋팅
         String title = "테스트 등록";
@@ -28,7 +31,7 @@ class BoardServiceImplTest extends BoardBaseTest {
         String email = "test1@naver.com";
 
         // 게시글 저장
-        Board savedBoard = boardService.addBoard(title, content, email);
+        Board savedBoard = boardService.addBoard(title, content, email, new ArrayList<>());
 
         // 저장된 게시글과 조회한 게시글 확인
         assertThat(savedBoard.getTitle()).isEqualTo(title);
@@ -37,14 +40,14 @@ class BoardServiceImplTest extends BoardBaseTest {
 
     @Test
     @DisplayName("제목이 빈 값일 경우 등록 실패")
-    public void failRegisterBoardByTitle() {
+    public void failRegisterBoardByTitle() throws IOException {
         // 제목과 내용, 사용자 정보 셋팅
         String title = "  ";
         String content = "테스트 내용 등록입니다.";
         String email = "test1@naver.com";
 
         // 게시글 저장
-        Board board = boardService.addBoard(title, content, email);
+        Board board = boardService.addBoard(title, content, email, new ArrayList<>());
 
         // 저장된 게시글과 조회한 게시글 확인
         assertThat(board.getId()).isNull();
@@ -52,14 +55,14 @@ class BoardServiceImplTest extends BoardBaseTest {
 
     @Test
     @DisplayName("내용이 빈 값일 경우 등록 실패")
-    public void failRegisterBoardByContent() {
+    public void failRegisterBoardByContent() throws IOException {
         // 제목과 내용, 사용자 정보 셋팅
         String title = "테스트 등록";
         String content = "            ";
         String email = "test1@naver.com";
 
         // 게시글 저장
-        Board board = boardService.addBoard(title, content, email);
+        Board board = boardService.addBoard(title, content, email, new ArrayList<>());
 
         // 저장된 게시글과 조회한 게시글 확인
         assertThat(board.getId()).isNull();
@@ -67,14 +70,14 @@ class BoardServiceImplTest extends BoardBaseTest {
 
     @Test
     @DisplayName("이메일이 빈 값일 경우 등록 실패")
-    public void failRegisterBoardByEmail() {
+    public void failRegisterBoardByEmail() throws IOException {
         // 제목과 내용, 사용자 정보 셋팅
         String title = "테스트 등록";
         String content = "테스트 내용 등록입니다.";
         String email = "   ";
 
         // 게시글 저장
-        Board board = boardService.addBoard(title, content, email);
+        Board board = boardService.addBoard(title, content, email, new ArrayList<>());
 
         // 저장된 게시글과 조회한 게시글 확인
         assertThat(board.getId()).isNull();
