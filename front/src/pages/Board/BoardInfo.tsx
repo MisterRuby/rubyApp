@@ -4,7 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import useSWR from "swr";
 import AccountType from "../../types/account/AccountType";
-import { BoardType, CommentType } from "../../types/board/BoardType";
+import { BoardType, CommentType, FileType } from "../../types/board/BoardType";
 import fetcher from "../../utils/fetcher";
 
 const BoardInfo = () : JSX.Element => {
@@ -57,12 +57,11 @@ const BoardInfo = () : JSX.Element => {
     }
   }, [boardId, mutate]);
 
-  // TODO - 게시글 수정, 댓글 수정
-  // 댓글 수정 버튼 클릭시 textarea 가 활성화되고 기존 입력된 내용의 영역은 비활성화
-
   const onMoveBoardUpdate = useCallback(() => {
     document.location.replace(`/boards/${boardId}/update`);
   }, [boardId]);
+
+  console.log(data);
 
   return (
     !data ? <></> :
@@ -75,6 +74,20 @@ const BoardInfo = () : JSX.Element => {
       <hr />
       <p>{data.content}</p>
       <hr />
+      {
+        data.fileList && data.fileList.length > 0 &&
+        <FileList>
+          <h3>첨부파일 목록</h3>
+          {
+            data.fileList.map((file:FileType) => (
+              <div key={`file${file.id}`}>
+                <span>{file.originFileName}</span>
+                <span>{file.fileSize}</span>
+              </div>
+            ))
+          }
+        </FileList>
+      }
 
       {
         data.commentList && data.commentList.length > 0 &&
@@ -129,6 +142,18 @@ const Container = styled.div`
     margin: 10px 0;
   }
 `;
+
+const FileList = styled.div`
+  margin: 20px 0;
+
+  & > h3 {
+    margin: 10px 0;
+  }
+
+  & > div > span {
+    margin-right: 20px;
+  }
+`
 
 const CommentList = styled.div`
   margin: 20px 0;

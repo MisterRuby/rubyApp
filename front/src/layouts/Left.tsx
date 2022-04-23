@@ -10,7 +10,8 @@ const Left = () : JSX.Element => {
   }, [openMenu])
 
   return (
-    <Container openMenu={openMenu} onClick={onOpenMenu}>
+    <Container openMenu={openMenu} >
+      <div onClick={onOpenMenu}></div>
       <Link to="/boards">
         Board
       </Link>
@@ -34,6 +35,16 @@ const containerStyle = (props:{openMenu:boolean}) => css`
   background: white;
   z-index: 9999;
   transition: 0.3s;
+
+  & > div {
+    position : absolute;
+    top: 0px;
+    right: 0px;
+    width: 50px;
+    height: 100%;
+    background: crimson;
+    opacity: 0.3;
+  }
 
   & > a {
     width: 180px;

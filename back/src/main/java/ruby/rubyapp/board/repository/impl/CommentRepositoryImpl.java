@@ -4,11 +4,13 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import ruby.rubyapp.board.entity.Board;
 import ruby.rubyapp.board.entity.Comment;
+import ruby.rubyapp.board.entity.QBoard;
 import ruby.rubyapp.board.repository.CommentRepositoryCustom;
 
 import java.util.List;
 
 import static ruby.rubyapp.account.entity.QAccount.account;
+import static ruby.rubyapp.board.entity.QBoard.*;
 import static ruby.rubyapp.board.entity.QComment.comment;
 
 @RequiredArgsConstructor
@@ -24,6 +26,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
     public List<Comment> getCommentListByBoard(Board belongBoard) {
         return queryFactory.selectFrom(comment)
                 .leftJoin(comment.account, account).fetchJoin()
+                .leftJoin(comment.board, board).fetchJoin()
                 .where(comment.board.eq(belongBoard))
                 .fetch();
     }

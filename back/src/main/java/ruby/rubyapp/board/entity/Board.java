@@ -50,6 +50,8 @@ public class Board {
         this.reportingDate = LocalDateTime.now();
     }
 
+    /** 연관관계 메서드 */
+
     /** 비즈니스 메서드 */
 
     /** 게시글 수정 */

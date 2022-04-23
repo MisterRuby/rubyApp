@@ -6,9 +6,7 @@ import ruby.rubyapp.board.entity.Board;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Getter @Setter
@@ -28,6 +26,7 @@ public class BoardDto {
     private String name;
     private String email;
     private List<CommentDto> commentList;
+    private List<BoardFileRecordDto> fileList;
 
     public BoardDto (Board board) {
         this.id = board.getId();
@@ -46,6 +45,15 @@ public class BoardDto {
                                 .email(comment.getAccount().getEmail())
                                 .boardId(this.id)
                                 .build()
+                )
+                .collect(Collectors.toList());
+        this.fileList = board.getFileList().stream()
+                .map(boardFileRecord ->
+                        BoardFileRecordDto.builder()
+                                .id(boardFileRecord.getId())
+                                .originFileName(boardFileRecord.getOriginFileName())
+                                .fileSize(boardFileRecord.getFileSize())
+                        .build()
                 )
                 .collect(Collectors.toList());
     }

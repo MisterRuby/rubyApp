@@ -134,12 +134,8 @@ public class BoardControllerTest extends BoardControllerBaseTest {
                 multipart("/boards")
                 .file(file)
                 .file(jsonDto)
-//                post("/boards")
                 .session(mockHttpSession)
                 .with(oauth2Login())
-//                .header("Content-Type" , "multipart/form-data")
-//                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-//                .content(objectMapper.writeValueAsString(boardDto))
         )
                 .andDo(print())
                 .andExpect(jsonPath("id").exists());

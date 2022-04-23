@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import ruby.rubyapp.account.entity.Account;
 
 import javax.persistence.*;
@@ -45,14 +46,9 @@ public class Comment {
         this.reportingDate = LocalDateTime.now();
     }
 
-    /** 비즈니스 메서드 */
-    public void setBoard(Board board) {
-        this.board = board;
-        if (!board.getCommentList().contains(this)) {
-            board.getCommentList().add(this);
-        }
-    }
+    /** 연관관계 메서드 */
 
+    /** 비즈니스 메서드 */
     public void update(String content) {
         this.content = content;
     }

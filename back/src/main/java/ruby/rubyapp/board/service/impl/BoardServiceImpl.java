@@ -13,6 +13,7 @@ import ruby.rubyapp.account.entity.Account;
 import ruby.rubyapp.account.repository.AccountRepository;
 import ruby.rubyapp.board.entity.Board;
 import ruby.rubyapp.board.entity.BoardFileRecord;
+import ruby.rubyapp.board.entity.Comment;
 import ruby.rubyapp.board.entity.SearchType;
 import ruby.rubyapp.board.repository.BoardFileRepository;
 import ruby.rubyapp.board.repository.BoardRepository;
@@ -93,9 +94,10 @@ public class BoardServiceImpl implements BoardService {
 
         // 연관댓글과 댓글 작성자 목록들을 fetchjoin
         optionalBoard.ifPresent(board ->
-                commentRepository.getCommentListByBoard(board)
-                        .forEach(comment -> comment.setBoard(board))
-        );
+        {
+            List<Comment> commentListByBoard = commentRepository.getCommentListByBoard(board);
+            board.setCommentList(commentListByBoard);
+        });
 
         return optionalBoard;
     }

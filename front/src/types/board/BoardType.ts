@@ -5,7 +5,8 @@ export interface BoardType {
   name: string,
   reportingDate: string,
   title: string,
-  commentList: []
+  commentList: [],
+  fileList: []
 }
 
 export interface BoardListType {
@@ -29,3 +30,8 @@ export interface BoardSearchType {
   pageNum : number
 }
 
+export interface FileType {
+  id : number,
+  originFileName : string,
+  fileSize : number
+}

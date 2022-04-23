@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import ruby.rubyapp.board.entity.Board;
+import ruby.rubyapp.board.entity.QBoardFileRecord;
 import ruby.rubyapp.board.entity.QComment;
 import ruby.rubyapp.board.entity.SearchType;
 import ruby.rubyapp.board.repository.BoardRepositoryCustom;
@@ -16,6 +17,7 @@ import java.util.Optional;
 
 import static ruby.rubyapp.account.entity.QAccount.account;
 import static ruby.rubyapp.board.entity.QBoard.board;
+import static ruby.rubyapp.board.entity.QBoardFileRecord.*;
 import static ruby.rubyapp.board.entity.QComment.*;
 
 @RequiredArgsConstructor
@@ -60,7 +62,8 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
     public Optional<Board> getBoard(Long boardId) {
         Board findBoard = queryFactory.selectFrom(board)
                 .leftJoin(board.account, account).fetchJoin()
-                .leftJoin(board.commentList, comment).fetchJoin()
+//                .leftJoin(board.commentList, comment).fetchJoin()
+                .leftJoin(board.fileList, boardFileRecord).fetchJoin()
                 .where(board.id.eq(boardId))
                 .fetchOne();
 
