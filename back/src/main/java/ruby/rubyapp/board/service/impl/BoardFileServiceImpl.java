@@ -16,8 +16,6 @@ public class BoardFileServiceImpl implements BoardFileService {
 
     @Override
     public Optional<BoardFileRecord> downLoadBoardFile(Long fileId) {
-        // id 를 통해 파일 레코드로부터 storedName 을 얻어낸다(실제 저장된 파일 이름)
-
         return boardFileRepository.findById(fileId);
     }
 }

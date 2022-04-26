@@ -5,11 +5,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.mock.web.MockPart;
 import ruby.rubyapp.board.BoardControllerBaseTest;
 import ruby.rubyapp.board.dto.BoardDto;
 import ruby.rubyapp.board.entity.Board;
-import ruby.rubyapp.board.entity.SearchType;
+import ruby.rubyapp.board.entity.BoardSearchType;
 
 import java.nio.charset.StandardCharsets;
 
@@ -84,11 +83,11 @@ public class BoardControllerTest extends BoardControllerBaseTest {
     @Test
     @DisplayName("게시글 단건 조회")
     public void getBoard() throws Exception {
-        SearchType searchType = SearchType.TITLE;
+        BoardSearchType boardSearchType = BoardSearchType.TITLE;
         String searchWord = "게시글110";
         int pageNum = 0;
 
-        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Page<Board> boardList = boardService.getBoardList(boardSearchType, searchWord, pageNum);
         Long boardId = boardList.getContent().get(0).getId();
 
         mockMvc.perform(
@@ -189,11 +188,11 @@ public class BoardControllerTest extends BoardControllerBaseTest {
     @Test
     @DisplayName("게시글 수정")
     public void updateBoard() throws Exception {
-        SearchType searchType = SearchType.CONTENT;
+        BoardSearchType boardSearchType = BoardSearchType.CONTENT;
         String searchWord = "게시글1의";
         int pageNum = 0;
 
-        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Page<Board> boardList = boardService.getBoardList(boardSearchType, searchWord, pageNum);
         Long boardId = boardList.getContent().get(0).getId();
 
         String title = "변경된 타이틀입니다.";
@@ -217,11 +216,11 @@ public class BoardControllerTest extends BoardControllerBaseTest {
     @Test
     @DisplayName("게시글 작성자와 다른 계정으로 수정")
     public void failUpdateBoardByWrongAccount() throws Exception {
-        SearchType searchType = SearchType.CONTENT;
+        BoardSearchType boardSearchType = BoardSearchType.CONTENT;
         String searchWord = "게시글12의";
         int pageNum = 0;
 
-        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Page<Board> boardList = boardService.getBoardList(boardSearchType, searchWord, pageNum);
         Long boardId = boardList.getContent().get(0).getId();
 
         String title = "변경된 타이틀입니다.";
@@ -245,11 +244,11 @@ public class BoardControllerTest extends BoardControllerBaseTest {
     @Test
     @DisplayName("최소 글자 미만의 제목으로 게시글 수정")
     public void failUpdateBoardByWrongTitle() throws Exception {
-        SearchType searchType = SearchType.CONTENT;
+        BoardSearchType boardSearchType = BoardSearchType.CONTENT;
         String searchWord = "게시글1의";
         int pageNum = 0;
 
-        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Page<Board> boardList = boardService.getBoardList(boardSearchType, searchWord, pageNum);
         Long boardId = boardList.getContent().get(0).getId();
 
         String title = "";
@@ -273,11 +272,11 @@ public class BoardControllerTest extends BoardControllerBaseTest {
     @Test
     @DisplayName("게시글 삭제 및 해당 게시글에 포함되는 댓글 모두 삭제")
     public void deleteBoard() throws Exception {
-        SearchType searchType = SearchType.CONTENT;
+        BoardSearchType boardSearchType = BoardSearchType.CONTENT;
         String searchWord = "게시글1의";
         int pageNum = 0;
 
-        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Page<Board> boardList = boardService.getBoardList(boardSearchType, searchWord, pageNum);
         Long boardId = boardList.getContent().get(0).getId();
 
         long boardCount = boardRepository.count();
@@ -301,11 +300,11 @@ public class BoardControllerTest extends BoardControllerBaseTest {
     @Test
     @DisplayName("작성자가 아닌 사용자가 게시글 삭제")
     public void failDeleteBoardByWrongAccount() throws Exception {
-        SearchType searchType = SearchType.CONTENT;
+        BoardSearchType boardSearchType = BoardSearchType.CONTENT;
         String searchWord = "게시글5의";
         int pageNum = 0;
 
-        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Page<Board> boardList = boardService.getBoardList(boardSearchType, searchWord, pageNum);
         Long boardId = boardList.getContent().get(0).getId();
 
         long boardCount = boardRepository.count();

@@ -27,6 +27,8 @@ public class QAccount extends EntityPathBase<Account> {
 
     public final EnumPath<AccountRole> role = createEnum("role", AccountRole.class);
 
+    public final DateTimePath<java.time.LocalDateTime> signUpDate = createDateTime("signUpDate", java.time.LocalDateTime.class);
+
     public QAccount(String variable) {
         super(Account.class, forVariable(variable));
     }

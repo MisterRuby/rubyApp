@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import ruby.rubyapp.board.entity.Comment;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,11 +29,18 @@ public class Account {
     @Column(nullable = false)
     private String email;
     @Column(nullable = false)
+    private LocalDateTime signUpDate;
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private AccountRole role;
 
-    public Account update(String name) {
+    public Account updateName(String name) {
         this.name = name;
+        return this;
+    }
+
+    public Account updateRole(AccountRole role) {
+        this.role = role;
         return this;
     }
 }

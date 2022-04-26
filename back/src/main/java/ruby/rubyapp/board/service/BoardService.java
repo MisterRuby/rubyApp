@@ -3,7 +3,7 @@ package ruby.rubyapp.board.service;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 import ruby.rubyapp.board.entity.Board;
-import ruby.rubyapp.board.entity.SearchType;
+import ruby.rubyapp.board.entity.BoardSearchType;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,12 +33,12 @@ public interface BoardService {
 
     /**
      * 게시판 목록 조회
-     * @param searchType    검색 종류
-     * @param searchWord    검색어
-     * @param pageNum       페이지 번호
+     * @param boardSearchType   검색 종류
+     * @param searchWord        검색어
+     * @param pageNum           페이지 번호
      * @return
      */
-    Page<Board> getBoardList(SearchType searchType, String searchWord, int pageNum);
+    Page<Board> getBoardList(BoardSearchType boardSearchType, String searchWord, int pageNum);
 
     /**
      * 게시글 수정
@@ -56,5 +56,5 @@ public interface BoardService {
      * @param email         작성자 email
      * @return
      */
-    Long deleteBoard(Long boardId, String email) throws IOException;
+    Long deleteBoard(Long boardId, String email);
 }

@@ -62,22 +62,27 @@ const BoardInfo = () : JSX.Element => {
   }, [boardId]);
 
   const onDownloadBoardFile = useCallback(async(fileId:number) => {
-    const res = await axios.get(`${process.env.REACT_APP_SERVER_URL}/boardFiles/${fileId}`, {
+    await axios.get(`${process.env.REACT_APP_SERVER_URL}/boardFiles/${fileId}`, {
       withCredentials: true,
       responseType: "blob"
-    });
-
-    const fileName = decodeURIComponent(res.headers["content-disposition"].split("filename*=UTF-8''")[1]);
-    const blob = new Blob([res.data]);
-    const link = document.createElement('a');
-    link.href = window.URL.createObjectURL(blob);
-    link.style.display = 'none';
-    link.setAttribute("download", fileName);
-
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-
+    })
+    .then(res => {
+      const fileName = decodeURIComponent(res.headers["content-disposition"].split("filename*=UTF-8''")[1]);
+      const blob = new Blob([res.data]);
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.style.display = 'none';
+      link.setAttribute("download", fileName);
+  
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    })
+    .catch(error => {
+      if (error.response.status === 410) {
+        alert("해당 파일을 찾을 수 없습니다.");
+      }
+    })
   }, [])
 
   return (

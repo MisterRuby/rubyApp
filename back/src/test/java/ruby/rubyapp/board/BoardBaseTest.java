@@ -24,6 +24,7 @@ import ruby.rubyapp.board.service.CommentService;
 
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 
 /**
  * Board 테스트 기본 셋팅
@@ -73,6 +74,7 @@ public class BoardBaseTest {
                     .email(email)
                     .name(name)
                     .role(AccountRole.USER)
+                    .signUpDate(LocalDateTime.now())
                     .build();
             accountRepository.save(account);
         }

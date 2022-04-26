@@ -21,6 +21,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
+/**
+ * 게시판 관련 파일 Controller
+ */
 @Controller
 @RequestMapping(value = "/boardFiles")
 @RequiredArgsConstructor
@@ -31,12 +34,19 @@ public class BoardFileController {
     @Value("${file.uploadDir}")
     private String uploadDir;
 
+    /**
+     * 게시글에 등록된 파일 다운로드
+     * @param boardFileId   파일 id
+     * @return
+     * @throws IOException
+     */
     @GetMapping("/{boardFileId}")
-    public ResponseEntity downloadBoardFile (@PathVariable Long boardFileId) throws IOException {
+    public ResponseEntity downloadBoardFile (@PathVariable Long boardFileId, @LoginAccount SessionAccount account) {
+        if (account == null) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+
         Optional<BoardFileRecord> boardFileRecord = boardFileService.downLoadBoardFile(boardFileId);
 
         if (boardFileRecord.isPresent()) {
-            // 파일 찾아서 리턴
             File file = boardFileRecord.map(record -> new File(uploadDir + File.separator + record.getStoredFileName())).orElse(null);
             String originFileName = boardFileRecord.get().getOriginFileName();
 
@@ -48,13 +58,16 @@ public class BoardFileController {
             );
 
             Path path = Paths.get(file.getAbsolutePath());
-            ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
-
-            return ResponseEntity.ok()
-                    .contentLength(resource.contentLength())
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .headers(httpHeaders)
-                    .body(resource);
+            try {
+                ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
+                return ResponseEntity.ok()
+                        .contentLength(resource.contentLength())
+                        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                        .headers(httpHeaders)
+                        .body(resource);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         return new ResponseEntity<>(HttpStatus.GONE);

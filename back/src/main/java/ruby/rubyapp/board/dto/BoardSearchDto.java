@@ -2,7 +2,7 @@ package ruby.rubyapp.board.dto;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.validator.constraints.Length;
+import ruby.rubyapp.board.entity.BoardSearchType;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -12,7 +12,8 @@ import javax.validation.constraints.NotNull;
 public class BoardSearchDto {
 
     @NotNull(message = "검색타입은 반드시 지정되어야 합니다.")
-    private String searchType;
+//    private String searchType;
+    private BoardSearchType searchType;
     @NotNull
 //    @Length(min = 2)
     private String searchWord;

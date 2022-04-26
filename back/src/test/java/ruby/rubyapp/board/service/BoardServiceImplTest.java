@@ -3,12 +3,10 @@ package ruby.rubyapp.board.service;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.web.multipart.MultipartFile;
 import ruby.rubyapp.board.BoardBaseTest;
 import ruby.rubyapp.board.entity.Board;
 import ruby.rubyapp.board.entity.Comment;
-import ruby.rubyapp.board.entity.SearchType;
+import ruby.rubyapp.board.entity.BoardSearchType;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -86,11 +84,11 @@ class BoardServiceImplTest extends BoardBaseTest {
     @Test
     @DisplayName("게시글 제목으로 검색")
     public void getBoardListByTitle() {
-        SearchType searchType = SearchType.TITLE;
+        BoardSearchType boardSearchType = BoardSearchType.TITLE;
         String searchWord = "게시글11";
         int pageNum = 0;
 
-        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Page<Board> boardList = boardService.getBoardList(boardSearchType, searchWord, pageNum);
 
         assertThat(boardList.getTotalElements()).isEqualTo(4);        // 11, 110, 111, 112
         assertThat(boardList.getContent()).extracting("title")
@@ -101,11 +99,11 @@ class BoardServiceImplTest extends BoardBaseTest {
     @Test
     @DisplayName("없는 게시글 제목으로 검색")
     public void getBoardListByNoneTitle() {
-        SearchType searchType = SearchType.TITLE;
+        BoardSearchType boardSearchType = BoardSearchType.TITLE;
         String searchWord = "게시글1000";
         int pageNum = 0;
 
-        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Page<Board> boardList = boardService.getBoardList(boardSearchType, searchWord, pageNum);
 
         assertThat(boardList.getTotalElements()).isEqualTo(0);
     }
@@ -113,12 +111,12 @@ class BoardServiceImplTest extends BoardBaseTest {
     @Test
     @DisplayName("게시글 내용, 페이지 번호로 검색")
     public void getBoardListByContent() {
-        SearchType searchType = SearchType.CONTENT;
+        BoardSearchType boardSearchType = BoardSearchType.CONTENT;
         String searchWord = "7의 본문";
         int pageNum = 1;
 
         // 7, 17, 27, 37, 47, 57, 67, 77, 87, 97, 107
-        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Page<Board> boardList = boardService.getBoardList(boardSearchType, searchWord, pageNum);
 
         assertThat(boardList.getTotalElements()).isEqualTo(11);
         assertThat(boardList.getContent().size()).isEqualTo(1);
@@ -127,7 +125,7 @@ class BoardServiceImplTest extends BoardBaseTest {
         assertThat(pageNum).isEqualTo(boardList.getNumber());
 
         pageNum = 0;
-        boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        boardList = boardService.getBoardList(boardSearchType, searchWord, pageNum);
 
         assertThat(boardList.getContent().size()).isEqualTo(10);
         assertThat(boardList.getContent()).extracting("title")
@@ -139,18 +137,18 @@ class BoardServiceImplTest extends BoardBaseTest {
     @Test
     @DisplayName("없는 게시글 내용, 페이지 번호로 검색")
     public void getBoardListByNoneContent() {
-        SearchType searchType = SearchType.CONTENT;
+        BoardSearchType boardSearchType = BoardSearchType.CONTENT;
         String searchWord = "?????";
         int pageNum = 0;
 
-        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Page<Board> boardList = boardService.getBoardList(boardSearchType, searchWord, pageNum);
 
         assertThat(boardList.getTotalElements()).isEqualTo(0);
 
         searchWord = "7의 본문";
         pageNum = 2;
 
-        boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        boardList = boardService.getBoardList(boardSearchType, searchWord, pageNum);
 
         assertThat(boardList.getTotalElements()).isEqualTo(11);
         assertThat(boardList.getContent().size()).isEqualTo(0);
@@ -159,12 +157,12 @@ class BoardServiceImplTest extends BoardBaseTest {
     @Test
     @DisplayName("사용자이름으로 검색")
     public void getBoardListByUsername() {
-        SearchType searchType = SearchType.USERNAME;
+        BoardSearchType boardSearchType = BoardSearchType.USERNAME;
         String searchWord = "test9";
         int pageNum = 0;
 
         // 9, 90~99
-        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Page<Board> boardList = boardService.getBoardList(boardSearchType, searchWord, pageNum);
 
         assertThat(boardList.getTotalElements()).isEqualTo(11);
         assertThat(boardList.getContent().size()).isEqualTo(10);
@@ -174,7 +172,7 @@ class BoardServiceImplTest extends BoardBaseTest {
         assertThat(pageNum).isEqualTo(boardList.getNumber());
 
         pageNum = 1;
-        boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        boardList = boardService.getBoardList(boardSearchType, searchWord, pageNum);
 
         assertThat(boardList.getContent().size()).isEqualTo(1);
         assertThat(boardList.getContent()).extracting("account.name")
@@ -185,11 +183,11 @@ class BoardServiceImplTest extends BoardBaseTest {
     @Test
     @DisplayName("없는 사용자이름으로 검색")
     public void getBoardListByNoneUsername() {
-        SearchType searchType = SearchType.USERNAME;
+        BoardSearchType boardSearchType = BoardSearchType.USERNAME;
         String searchWord = "test7213";
         int pageNum = 0;
 
-        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Page<Board> boardList = boardService.getBoardList(boardSearchType, searchWord, pageNum);
 
         assertThat(boardList.getTotalElements()).isEqualTo(0);
     }
@@ -197,11 +195,11 @@ class BoardServiceImplTest extends BoardBaseTest {
     @Test
     @DisplayName("게시글 단건 조회")
     public void getBoard() {
-        SearchType searchType = SearchType.TITLE;
+        BoardSearchType boardSearchType = BoardSearchType.TITLE;
         String searchWord = "게시글110";
         int pageNum = 0;
 
-        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Page<Board> boardList = boardService.getBoardList(boardSearchType, searchWord, pageNum);
         Long boardId = boardList.getContent().get(0).getId();
 
         System.out.println("===========조회 시작==============");
@@ -225,11 +223,11 @@ class BoardServiceImplTest extends BoardBaseTest {
     @Test
     @DisplayName("게시글 수정")
     public void updateBoard() {
-        SearchType searchType = SearchType.TITLE;
+        BoardSearchType boardSearchType = BoardSearchType.TITLE;
         String searchWord = "게시글110";
         int pageNum = 0;
 
-        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Page<Board> boardList = boardService.getBoardList(boardSearchType, searchWord, pageNum);
         Board board = boardList.getContent().get(0);
         Long boardId = board.getId();
         String email = "test110@naver.com";
@@ -255,11 +253,11 @@ class BoardServiceImplTest extends BoardBaseTest {
     @Test
     @DisplayName("게시글 작성자와 사용자가 달라 수정 실패")
     public void failUpdateBoardByWrongAccount() {
-        SearchType searchType = SearchType.TITLE;
+        BoardSearchType boardSearchType = BoardSearchType.TITLE;
         String searchWord = "게시글110";
         int pageNum = 0;
 
-        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Page<Board> boardList = boardService.getBoardList(boardSearchType, searchWord, pageNum);
         Board board = boardList.getContent().get(0);
         Long boardId = board.getId();
         String email = "test5@naver.com";
@@ -277,11 +275,11 @@ class BoardServiceImplTest extends BoardBaseTest {
     @Test
     @DisplayName("제목이 빈 값일때 수정 실패")
     public void failUpdateBoardByBlankTitle() {
-        SearchType searchType = SearchType.TITLE;
+        BoardSearchType boardSearchType = BoardSearchType.TITLE;
         String searchWord = "게시글110";
         int pageNum = 0;
 
-        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Page<Board> boardList = boardService.getBoardList(boardSearchType, searchWord, pageNum);
         Board board = boardList.getContent().get(0);
         Long boardId = board.getId();
         String email = "test110@naver.com";
@@ -312,11 +310,11 @@ class BoardServiceImplTest extends BoardBaseTest {
     @Test
     @DisplayName("게시글 및 관련 댓글 모두 삭제")
     public void deleteBoard() {
-        SearchType searchType = SearchType.TITLE;
+        BoardSearchType boardSearchType = BoardSearchType.TITLE;
         String searchWord = "게시글110";
         int pageNum = 0;
 
-        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Page<Board> boardList = boardService.getBoardList(boardSearchType, searchWord, pageNum);
         Board board = boardService.getBoard(boardList.getContent().get(0).getId()).get();
         Long boardId = board.getId();
         Long commentId = board.getCommentList().get(0).getId();
@@ -341,11 +339,11 @@ class BoardServiceImplTest extends BoardBaseTest {
     @Test
     @DisplayName("게시글 작성자와 사용자가 다르다면 삭제 실패")
     public void failDeleteBoardWrongAccount() {
-        SearchType searchType = SearchType.TITLE;
+        BoardSearchType boardSearchType = BoardSearchType.TITLE;
         String searchWord = "게시글110";
         int pageNum = 0;
 
-        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Page<Board> boardList = boardService.getBoardList(boardSearchType, searchWord, pageNum);
         Board board = boardService.getBoard(boardList.getContent().get(0).getId()).get();
         Long boardId = board.getId();
         Long commentId = board.getCommentList().get(0).getId();

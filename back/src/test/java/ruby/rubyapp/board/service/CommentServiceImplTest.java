@@ -3,13 +3,11 @@ package ruby.rubyapp.board.service;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
-import org.springframework.test.annotation.Rollback;
 import ruby.rubyapp.board.BoardBaseTest;
 import ruby.rubyapp.board.entity.Board;
 import ruby.rubyapp.board.entity.Comment;
-import ruby.rubyapp.board.entity.SearchType;
+import ruby.rubyapp.board.entity.BoardSearchType;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -86,11 +84,11 @@ class CommentServiceImplTest extends BoardBaseTest {
     @Test
     @DisplayName("댓글 수정")
     public void updateComment() {
-        SearchType searchType = SearchType.TITLE;
+        BoardSearchType boardSearchType = BoardSearchType.TITLE;
         String searchWord = "게시글110";
         int pageNum = 0;
 
-        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Page<Board> boardList = boardService.getBoardList(boardSearchType, searchWord, pageNum);
         Board board = boardList.getContent().get(0);
         Comment comment = board.getCommentList().get(2);
         String content = "댓글 내용 수정!";
@@ -112,11 +110,11 @@ class CommentServiceImplTest extends BoardBaseTest {
     @Test
     @DisplayName("내용이 빈 값일 경우 수정 실패")
     public void failUpdateCommentByWrongContent() {
-        SearchType searchType = SearchType.TITLE;
+        BoardSearchType boardSearchType = BoardSearchType.TITLE;
         String searchWord = "게시글110";
         int pageNum = 0;
 
-        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Page<Board> boardList = boardService.getBoardList(boardSearchType, searchWord, pageNum);
         Board board = boardList.getContent().get(0);
         Comment comment = board.getCommentList().get(2);
         String content = "        ";
@@ -132,11 +130,11 @@ class CommentServiceImplTest extends BoardBaseTest {
     @Test
     @DisplayName("접속한 유저가 댓글 작성자와 다르다면 수정 불가능")
     public void failUpdateCommentByWrongAccount() {
-        SearchType searchType = SearchType.TITLE;
+        BoardSearchType boardSearchType = BoardSearchType.TITLE;
         String searchWord = "게시글110";
         int pageNum = 0;
 
-        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Page<Board> boardList = boardService.getBoardList(boardSearchType, searchWord, pageNum);
         Board board = boardList.getContent().get(0);
         Comment comment = board.getCommentList().get(2);
         String content = "댓글 내용 수정!";
@@ -152,11 +150,11 @@ class CommentServiceImplTest extends BoardBaseTest {
     @Test
     @DisplayName("댓글 삭제")
     public void deleteComment() {
-        SearchType searchType = SearchType.TITLE;
+        BoardSearchType boardSearchType = BoardSearchType.TITLE;
         String searchWord = "게시글110";
         int pageNum = 0;
 
-        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Page<Board> boardList = boardService.getBoardList(boardSearchType, searchWord, pageNum);
         Board board = boardList.getContent().get(0);
         Comment comment = board.getCommentList().get(2);
         Long commentId = comment.getId();
@@ -179,11 +177,11 @@ class CommentServiceImplTest extends BoardBaseTest {
     @Test
     @DisplayName("댓글 작성자와 사용자가 다를 경우 삭제 실패")
     public void failDeleteComment() {
-        SearchType searchType = SearchType.TITLE;
+        BoardSearchType boardSearchType = BoardSearchType.TITLE;
         String searchWord = "게시글110";
         int pageNum = 0;
 
-        Page<Board> boardList = boardService.getBoardList(searchType, searchWord, pageNum);
+        Page<Board> boardList = boardService.getBoardList(boardSearchType, searchWord, pageNum);
         Board board = boardList.getContent().get(0);
         Comment comment = board.getCommentList().get(2);
         Long commentId = comment.getId();

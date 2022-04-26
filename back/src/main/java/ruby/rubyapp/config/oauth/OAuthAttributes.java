@@ -6,6 +6,7 @@ import lombok.Getter;
 import ruby.rubyapp.account.entity.Account;
 import ruby.rubyapp.account.entity.AccountRole;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @Getter
@@ -61,6 +62,7 @@ public class OAuthAttributes {
                 .name(name)
                 .email(email)
                 .role(AccountRole.USER)
+                .signUpDate(LocalDateTime.now())
                 .build();
     }
 }

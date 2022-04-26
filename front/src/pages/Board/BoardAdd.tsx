@@ -47,19 +47,29 @@ const BoardAdd = () => {
       content: content
     })], { type: "application/json" }));
 
-    const res = await axios.post(`${process.env.REACT_APP_SERVER_URL}/boards`, formData,
-    {
-      withCredentials: true,
-      headers : {
-        "Content-Type" : "multipart/form-data",
+    await axios.post(`${process.env.REACT_APP_SERVER_URL}/boards`, formData,
+      {
+        withCredentials: true,
+        headers : {
+          "Content-Type" : "multipart/form-data",
+        }
       }
-    }
-    );
+    )
+    .then(res => {
+      if (res.data && res.data.id) {
+        alert("글이 등록되었습니다.");
+        document.location.replace(`/boards/${res.data.id}`);
+      }
+    })
+    .catch(error => {
+      if (error.response.status === 403) {
+        alert("게시글 등록에 실패하였습니다.");
+      } else if (error.response.status === 500) {
+        alert("서버에 문제가 있어 게시글을 등록할 수 없습니다.");
+      }
+    })
 
-    if (res.data && res.data.id) {
-      alert("글이 등록되었습니다.");
-      document.location.replace(`/boards/${res.data.id}`);
-    }
+    
   }, [fileList]);
 
   

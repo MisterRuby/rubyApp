@@ -2,6 +2,8 @@ package ruby.rubyapp.board.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -9,7 +11,6 @@ import ruby.rubyapp.board.dto.BoardDto;
 import ruby.rubyapp.board.dto.BoardListDto;
 import ruby.rubyapp.board.dto.BoardSearchDto;
 import ruby.rubyapp.board.entity.Board;
-import ruby.rubyapp.board.entity.SearchType;
 import ruby.rubyapp.board.service.BoardService;
 import ruby.rubyapp.board.util.BoardValidation;
 import ruby.rubyapp.config.oauth.LoginAccount;
@@ -21,6 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * 게시판 Controller
+ */
 @RestController
 @RequestMapping(value = "/boards")
 @RequiredArgsConstructor
@@ -39,9 +43,9 @@ public class BoardController {
             return new BoardListDto();
         }
 
-        SearchType type = SearchType.valueOf(searchDto.getSearchType());
+//        BoardSearchType type = BoardSearchType.valueOf(searchDto.getSearchType());
 
-        Page<Board> boardList = boardService.getBoardList(type, searchDto.getSearchWord(), searchDto.getPageNum());
+        Page<Board> boardList = boardService.getBoardList(searchDto.getSearchType(), searchDto.getSearchWord(), searchDto.getPageNum());
 
         return new BoardListDto(boardList);
     }
@@ -65,20 +69,26 @@ public class BoardController {
      * @return
      */
     @PostMapping
-    public BoardDto addBoard(
+    public ResponseEntity<BoardDto> addBoard(
             @RequestPart("board") @Valid BoardDto boardDto, Errors errors,
-            @RequestPart(name = "files" , required = false) List<MultipartFile> files, @LoginAccount SessionAccount account) throws IOException {
+            @RequestPart(name = "files" , required = false) List<MultipartFile> files, @LoginAccount SessionAccount account) {
         if (errors.hasErrors()) {
-            return new BoardDto();
+            return new ResponseEntity<>(new BoardDto(), HttpStatus.FORBIDDEN);
         }
 
         if (files.size() == 0) files = new ArrayList<>();
 
-        if (!BoardValidation.validateFileExtension(files)) return new BoardDto();
+        if (!BoardValidation.validateFileExtension(files)) return new ResponseEntity<>(new BoardDto(), HttpStatus.FORBIDDEN);
 
-        Board savedBoard = boardService.addBoard(boardDto.getTitle(), boardDto.getContent(), account.getEmail(), files);
+        try {
+            Board savedBoard = boardService.addBoard(boardDto.getTitle(), boardDto.getContent(), account.getEmail(), files);
+            boardDto = BoardDto.builder().id(savedBoard.getId()).build();
+            return new ResponseEntity<>(boardDto, HttpStatus.OK);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        return BoardDto.builder().id(savedBoard.getId()).build();
+        return new ResponseEntity<>(new BoardDto(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -109,7 +119,7 @@ public class BoardController {
      * @return
      */
     @DeleteMapping("/{boardId}")
-    public BoardDto deleteBoard(@PathVariable Long boardId, @LoginAccount SessionAccount account) throws IOException {
+    public BoardDto deleteBoard(@PathVariable Long boardId, @LoginAccount SessionAccount account) {
 
         Long deleteBoardId = boardService.deleteBoard(boardId, account.getEmail());
 

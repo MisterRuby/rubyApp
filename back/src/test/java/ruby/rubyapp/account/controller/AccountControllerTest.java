@@ -1,39 +1,32 @@
 package ruby.rubyapp.account.controller;
 
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.MockBeans;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import ruby.rubyapp.account.AccountBaseTest;
 import ruby.rubyapp.account.entity.Account;
 import ruby.rubyapp.account.entity.AccountRole;
 import ruby.rubyapp.account.repository.AccountRepository;
 import ruby.rubyapp.config.oauth.CustomOAuth2UserService;
 
-import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
-@ActiveProfiles("test")
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @AutoConfigureMockMvc
 @MockBeans({
         @MockBean(CustomOAuth2UserService.class)
 })
-@Transactional
-@Rollback
-public class AccountControllerTest {
+public class AccountControllerTest extends AccountBaseTest {
 
     @Autowired
     protected MockMvc mockMvc;
@@ -61,6 +54,7 @@ public class AccountControllerTest {
                     .email(email)
                     .name(name)
                     .role(AccountRole.USER)
+                    .signUpDate(LocalDateTime.now())
                     .build();
             accountRepository.save(account);
         }

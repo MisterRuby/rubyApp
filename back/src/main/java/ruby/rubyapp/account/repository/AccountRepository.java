@@ -8,7 +8,7 @@ import java.util.Optional;
 /**
  * 사용자 Repository
  */
-public interface AccountRepository extends JpaRepository<Account, Long> {
+public interface AccountRepository extends JpaRepository<Account, Long>, AccountRepositoryCustom {
 
     /**
      * 이메일로 사용자 정보 조회

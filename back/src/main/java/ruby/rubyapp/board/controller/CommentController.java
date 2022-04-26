@@ -12,6 +12,9 @@ import ruby.rubyapp.config.oauth.SessionAccount;
 import javax.validation.Valid;
 import java.util.Optional;
 
+/**
+ * 게시판 댓글 Controller
+ */
 @RestController
 @RequestMapping(value = "/comments")
 @RequiredArgsConstructor

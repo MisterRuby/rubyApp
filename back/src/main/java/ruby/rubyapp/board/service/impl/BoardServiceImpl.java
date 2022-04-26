@@ -14,7 +14,7 @@ import ruby.rubyapp.account.repository.AccountRepository;
 import ruby.rubyapp.board.entity.Board;
 import ruby.rubyapp.board.entity.BoardFileRecord;
 import ruby.rubyapp.board.entity.Comment;
-import ruby.rubyapp.board.entity.SearchType;
+import ruby.rubyapp.board.entity.BoardSearchType;
 import ruby.rubyapp.board.repository.BoardFileRepository;
 import ruby.rubyapp.board.repository.BoardRepository;
 import ruby.rubyapp.board.repository.CommentRepository;
@@ -105,18 +105,17 @@ public class BoardServiceImpl implements BoardService {
 
     /**
      * 게시판 목록 조회
-     * @param searchType    검색 종류
+     * @param boardSearchType    검색 종류
      * @param searchWord    검색어
      * @param pageNum       페이지 번호
      * @return
      */
     @Override
     @Transactional(readOnly = true)
-    public Page<Board> getBoardList(SearchType searchType, String searchWord, int pageNum) {
+    public Page<Board> getBoardList(BoardSearchType boardSearchType, String searchWord, int pageNum) {
         int PAGE_PER_MAX_COUNT = 10;
-        Pageable pageable = PageRequest.of(pageNum, PAGE_PER_MAX_COUNT, Sort.by(searchType.getValue()).descending());
-
-        return boardRepository.getBoardList(searchType, searchWord, pageable);
+        Pageable pageable = PageRequest.of(pageNum, PAGE_PER_MAX_COUNT, Sort.by(boardSearchType.name()).descending());
+        return boardRepository.getBoardList(boardSearchType, searchWord, pageable);
     }
 
     /**
@@ -143,14 +142,19 @@ public class BoardServiceImpl implements BoardService {
      * @return
      */
     @Override
-    public Long deleteBoard(Long boardId, String email) throws IOException {
+    public Long deleteBoard(Long boardId, String email) {
         Optional<Board> optionalBoard = boardRepository.findByIdAndAccountEmail(boardId, email);
 
         if (optionalBoard.isPresent()) {
             List<BoardFileRecord> boardFileRecords = boardFileRepository.findByBoardId(boardId);
-            for (BoardFileRecord boardFileRecord : boardFileRecords) {
-                Path path = Paths.get(uploadDir + File.separator + boardFileRecord.getStoredFileName());
-                Files.delete(path);
+
+            try {
+                for (BoardFileRecord boardFileRecord : boardFileRecords) {
+                    Path path = Paths.get(uploadDir + File.separator + boardFileRecord.getStoredFileName());
+                    Files.delete(path);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
 
             boardFileRepository.deleteBulkBoardFile(boardId);

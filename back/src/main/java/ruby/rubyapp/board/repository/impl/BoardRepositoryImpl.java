@@ -7,7 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import ruby.rubyapp.board.entity.Board;
-import ruby.rubyapp.board.entity.SearchType;
+import ruby.rubyapp.board.entity.BoardSearchType;
 import ruby.rubyapp.board.repository.BoardRepositoryCustom;
 
 import java.util.List;
@@ -24,24 +24,24 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
 
     /**
      * 게시판 목록 조회
-     * @param searchType    검색 종류
+     * @param boardSearchType    검색 종류
      * @param searchWord    검색어
      * @param pageable      페이징 객체
      * @return
      */
     @Override
-    public Page<Board> getBoardList (SearchType searchType, String searchWord, Pageable pageable) {
+    public Page<Board> getBoardList (BoardSearchType boardSearchType, String searchWord, Pageable pageable) {
         // 전체 목록 수
         Long size = queryFactory.select(board.count())
                 .from(board)
                 .leftJoin(board.account, account)
-                .where(getBoardSearchCondition(searchType, searchWord))
+                .where(getBoardSearchCondition(boardSearchType, searchWord))
                 .fetchOne();
 
         // 페이지 번호에 해당하는 목록 조회
         List<Board> boardList = queryFactory.selectFrom(board)
                 .leftJoin(board.account, account).fetchJoin()
-                .where(getBoardSearchCondition(searchType, searchWord))
+                .where(getBoardSearchCondition(boardSearchType, searchWord))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(board.id.desc())
@@ -68,20 +68,23 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
 
     /**
      * 게시글 검색조건 설정
-     * @param searchType        검색 종류
+     * @param boardSearchType        검색 종류
      * @param searchWord        검색어
      * @return
      */
-    public BooleanExpression getBoardSearchCondition(SearchType searchType, String searchWord) {
-        if (searchType == null || searchWord == null) return null;
-
-        if (searchType.equals(SearchType.CONTENT)) {
+    private BooleanExpression getBoardSearchCondition(BoardSearchType boardSearchType, String searchWord) {
+        if (boardSearchType.equals(BoardSearchType.ALL)) {
+            return board.title.contains(searchWord)
+                    .or(board.content.contains(searchWord))
+                    .or(board.account.name.contains(searchWord));
+        }
+        if (boardSearchType.equals(BoardSearchType.CONTENT)) {
             return board.content.contains(searchWord);
         }
-        if (searchType.equals(SearchType.USERNAME)) {
+        if (boardSearchType.equals(BoardSearchType.USERNAME)) {
             return board.account.name.contains(searchWord);
         }
-        if (searchType.equals(SearchType.TITLE)) {
+        if (boardSearchType.equals(BoardSearchType.TITLE)) {
             return board.title.contains(searchWord);
         }
 
