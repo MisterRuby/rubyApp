@@ -61,7 +61,24 @@ const BoardInfo = () : JSX.Element => {
     document.location.replace(`/boards/${boardId}/update`);
   }, [boardId]);
 
-  console.log(data);
+  const onDownloadBoardFile = useCallback(async(fileId:number) => {
+    const res = await axios.get(`${process.env.REACT_APP_SERVER_URL}/boardFiles/${fileId}`, {
+      withCredentials: true,
+      responseType: "blob"
+    });
+
+    const fileName = decodeURIComponent(res.headers["content-disposition"].split("filename*=UTF-8''")[1]);
+    const blob = new Blob([res.data]);
+    const link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.style.display = 'none';
+    link.setAttribute("download", fileName);
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+  }, [])
 
   return (
     !data ? <></> :
@@ -69,20 +86,20 @@ const BoardInfo = () : JSX.Element => {
       <h2>제목 : {data.title}</h2>
       <span>글쓴이 : {data.name}</span>
       <span>등록일 : {data.reportingDate}</span>
-      {data.email === account.email && <button onClick={onMoveBoardUpdate}>수정</button>}
-      {data.email === account.email && <button onClick={() => onDeleteBoard(data.id)}>삭제</button>}
+      {account && data.email === account.email && <button onClick={onMoveBoardUpdate}>수정</button>}
+      {account && data.email === account.email && <button onClick={() => onDeleteBoard(data.id)}>삭제</button>}
       <hr />
       <p>{data.content}</p>
       <hr />
       {
-        data.fileList && data.fileList.length > 0 &&
+        data.fileList && data.fileList.length > 0 && account &&
         <FileList>
           <h3>첨부파일 목록</h3>
           {
             data.fileList.map((file:FileType) => (
-              <div key={`file${file.id}`}>
+              <div key={`file${file.id}`} onClick={() => onDownloadBoardFile(file.id)}>
                 <span>{file.originFileName}</span>
-                <span>{file.fileSize}</span>
+                <span>{(file.fileSize / 1048576).toFixed(2) + ' MB'}</span>
               </div>
             ))
           }
@@ -148,6 +165,10 @@ const FileList = styled.div`
 
   & > h3 {
     margin: 10px 0;
+  }
+
+  & > div {
+    cursor: pointer;
   }
 
   & > div > span {

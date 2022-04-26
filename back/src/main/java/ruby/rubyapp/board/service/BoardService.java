@@ -56,5 +56,5 @@ public interface BoardService {
      * @param email         작성자 email
      * @return
      */
-    Long deleteBoard(Long boardId, String email);
+    Long deleteBoard(Long boardId, String email) throws IOException;
 }

@@ -89,7 +89,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     @Transactional(readOnly = true)
     public Optional<Board> getBoard(Long boardId) {
-        // 게시글 단건과 작성자 정보, 연관 댓글을 fetchjoin
+        // 게시글 단건과 작성자 정보, 연관 파일 목록을 fetchjoin
         Optional<Board> optionalBoard = boardRepository.getBoard(boardId);
 
         // 연관댓글과 댓글 작성자 목록들을 fetchjoin
@@ -143,13 +143,20 @@ public class BoardServiceImpl implements BoardService {
      * @return
      */
     @Override
-    public Long deleteBoard(Long boardId, String email) {
+    public Long deleteBoard(Long boardId, String email) throws IOException {
         Optional<Board> optionalBoard = boardRepository.findByIdAndAccountEmail(boardId, email);
 
-        optionalBoard.ifPresent(board -> {
+        if (optionalBoard.isPresent()) {
+            List<BoardFileRecord> boardFileRecords = boardFileRepository.findByBoardId(boardId);
+            for (BoardFileRecord boardFileRecord : boardFileRecords) {
+                Path path = Paths.get(uploadDir + File.separator + boardFileRecord.getStoredFileName());
+                Files.delete(path);
+            }
+
+            boardFileRepository.deleteBulkBoardFile(boardId);
             commentRepository.deleteBulkComment(boardId);
-            boardRepository.delete(board);
-        });
+            boardRepository.delete(optionalBoard.get());
+        }
 
         return optionalBoard.isPresent() ? boardId : null;
     }

@@ -30,8 +30,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .headers().frameOptions().disable();
 
         http
-                .authorizeRequests()                                                                    // url별 권한 관리를 설정하는 옵션의 시작점
-                .antMatchers(HttpMethod.GET, "/**").permitAll()                              // permitAll() : 인증 x
+                .authorizeRequests()                                                                        // url별 권한 관리를 설정하는 옵션의 시작점
+                .antMatchers(HttpMethod.GET, "/**").permitAll()                                 // permitAll() : 인증 x
+                .antMatchers(HttpMethod.GET, "/boardFiles/**").hasRole(AccountRole.USER.name())
 //                .antMatchers(HttpMethod.POST,"/**").hasRole(AccountRole.USER.name())
 //                .antMatchers(HttpMethod.PUT,"/**").hasRole(AccountRole.USER.name())
 //                .antMatchers(HttpMethod.PATCH,"/**").hasRole(AccountRole.USER.name())

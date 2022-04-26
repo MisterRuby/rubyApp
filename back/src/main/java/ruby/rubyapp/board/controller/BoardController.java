@@ -1,9 +1,7 @@
 package ruby.rubyapp.board.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,11 +16,10 @@ import ruby.rubyapp.config.oauth.LoginAccount;
 import ruby.rubyapp.config.oauth.SessionAccount;
 
 import javax.validation.Valid;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/boards")
@@ -112,7 +109,7 @@ public class BoardController {
      * @return
      */
     @DeleteMapping("/{boardId}")
-    public BoardDto deleteBoard(@PathVariable Long boardId, @LoginAccount SessionAccount account) {
+    public BoardDto deleteBoard(@PathVariable Long boardId, @LoginAccount SessionAccount account) throws IOException {
 
         Long deleteBoardId = boardService.deleteBoard(boardId, account.getEmail());
 

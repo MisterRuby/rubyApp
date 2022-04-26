@@ -7,8 +7,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import ruby.rubyapp.board.entity.Board;
-import ruby.rubyapp.board.entity.QBoardFileRecord;
-import ruby.rubyapp.board.entity.QComment;
 import ruby.rubyapp.board.entity.SearchType;
 import ruby.rubyapp.board.repository.BoardRepositoryCustom;
 
@@ -17,8 +15,7 @@ import java.util.Optional;
 
 import static ruby.rubyapp.account.entity.QAccount.account;
 import static ruby.rubyapp.board.entity.QBoard.board;
-import static ruby.rubyapp.board.entity.QBoardFileRecord.*;
-import static ruby.rubyapp.board.entity.QComment.*;
+import static ruby.rubyapp.board.entity.QBoardFileRecord.boardFileRecord;
 
 @RequiredArgsConstructor
 public class BoardRepositoryImpl implements BoardRepositoryCustom {
@@ -35,7 +32,7 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
     @Override
     public Page<Board> getBoardList (SearchType searchType, String searchWord, Pageable pageable) {
         // 전체 목록 수
-        Long size = queryFactory.select(  board.count())
+        Long size = queryFactory.select(board.count())
                 .from(board)
                 .leftJoin(board.account, account)
                 .where(getBoardSearchCondition(searchType, searchWord))
@@ -62,7 +59,6 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
     public Optional<Board> getBoard(Long boardId) {
         Board findBoard = queryFactory.selectFrom(board)
                 .leftJoin(board.account, account).fetchJoin()
-//                .leftJoin(board.commentList, comment).fetchJoin()
                 .leftJoin(board.fileList, boardFileRecord).fetchJoin()
                 .where(board.id.eq(boardId))
                 .fetchOne();

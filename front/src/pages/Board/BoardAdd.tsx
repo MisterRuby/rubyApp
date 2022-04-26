@@ -115,14 +115,17 @@ const BoardAdd = () => {
       <div>
         파일 등록 : <input type="file" multiple placeholder="파일 등록" ref={commentContentRef} onChange={onChangeFileList}/>
       </div>
-      {
-        fileList.map((file:File, idx:number) => file && (
-          <div key={file.name + idx}>
-            <span>{file.name}</span>
-            <button onClick={() => onDeleteFile(idx)}>삭제</button>
-          </div>
-        ))
-      }
+      <FileListBox>
+        {
+          fileList.map((file:File, idx:number) => file && (
+            <div key={file.name + idx}>
+              <span>{file.name}</span>
+              <span>{(file.size / 1048576).toFixed(2) + ' MB'}</span>
+              <button onClick={() => onDeleteFile(idx)}>삭제</button>
+            </div>
+          ))
+        }
+      </FileListBox>
       <button onClick={onSubmit}>등록</button>
       
     </Container>
@@ -167,3 +170,9 @@ const Container = styled.div`
     background-color: white;
   }
 `;
+
+const FileListBox = styled.div`
+& > div > span {
+  margin-right: 15px;
+}
+`
