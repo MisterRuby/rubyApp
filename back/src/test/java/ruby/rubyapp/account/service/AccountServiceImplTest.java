@@ -7,6 +7,8 @@ import ruby.rubyapp.account.AccountBaseTest;
 import ruby.rubyapp.account.entity.Account;
 import ruby.rubyapp.account.entity.AccountRole;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -84,5 +86,34 @@ class AccountServiceImplTest extends AccountBaseTest {
 
         assertThat(accounts.getTotalElements()).isEqualTo(2);
         assertThat(accounts.getContent().size()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("사용자 권한 변경")
+    void updateAccountRole() {
+        Long accountId = 15L;
+        AccountRole beforeRole = accountRepository.findById(accountId).get().getRole();
+        AccountRole accountRole = AccountRole.BLOCK;
+
+        accountService.updateAccountRole(accountId, accountRole).get();
+
+        em.flush();
+        em.clear();
+
+        AccountRole afterRole = accountRepository.findById(accountId).get().getRole();
+
+        assertThat(beforeRole).isEqualTo(AccountRole.USER);
+        assertThat(afterRole).isEqualTo(AccountRole.BLOCK);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 사용자 권한 변경")
+    void failUpdateAccountRoleWrongAccount() {
+        Long accountId = 120L;
+        AccountRole accountRole = AccountRole.BLOCK;
+
+        Account account = accountService.updateAccountRole(accountId, accountRole).orElse(null);
+
+        assertThat(account).isNull();
     }
 }
