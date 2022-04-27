@@ -49,8 +49,7 @@ public class BoardBaseTest {
     protected BoardService boardService;
     @Autowired
     protected CommentService commentService;
-    @Autowired
-    protected ObjectMapper objectMapper;
+
 
     @BeforeAll
     void setUp(){

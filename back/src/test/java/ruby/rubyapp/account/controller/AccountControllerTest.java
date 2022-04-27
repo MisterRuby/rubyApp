@@ -1,12 +1,16 @@
 package ruby.rubyapp.account.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.MockBeans;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import ruby.rubyapp.account.AccountControllerBaseTest;
+import ruby.rubyapp.account.dto.AccountDto;
 import ruby.rubyapp.account.entity.Account;
 import ruby.rubyapp.account.entity.AccountRole;
 import ruby.rubyapp.config.oauth.CustomOAuth2UserService;
@@ -15,8 +19,9 @@ import ruby.rubyapp.config.oauth.SessionAccount;
 import javax.validation.constraints.Min;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -187,4 +192,53 @@ public class AccountControllerTest extends AccountControllerBaseTest {
                 .andDo(print())
                 .andExpect(status().is4xxClientError());
     }
+
+    @Test
+    @DisplayName("권한 수정")
+    void updateAccount() throws Exception {
+        // given
+        MockHttpSession session = sessionAdminAccount();
+        Account account = accountRepository.findByEmail("test11@naver.com").get();
+        AccountDto accountDto = AccountDto.builder()
+                .role(AccountRole.BLOCK)
+                .build();
+
+        // when
+        mockMvc.perform(
+                patch("/accounts/{accountId}", account.getId())
+                        .session(session)
+                        .with(oauth2Login())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(accountDto))
+        )
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        Account updatedAccount = accountRepository.findByEmail("test11@naver.com").get();
+        assertThat(updatedAccount.getRole()).isEqualTo(AccountRole.BLOCK);
+    }
+
+    @Test
+    @DisplayName("관리자 권한이 아닌 계정으로 수정")
+    void updateAccountByWrongRole() throws Exception {
+        MockHttpSession session = sessionUserAccount();
+        Account account = accountRepository.findByEmail("test99@naver.com").get();
+        AccountDto accountDto = AccountDto.builder()
+                .role(AccountRole.BLOCK)
+                .build();
+
+        // when
+        mockMvc.perform(
+                patch("/accounts/{accountId}", account.getId())
+                        .session(session)
+                        .with(oauth2Login())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(accountDto))
+        )
+                .andDo(print())
+                .andExpect(status().is4xxClientError());
+    }
+
+
+    // TODO - login 시 BLOCK 권한의 계정은 로그인 불가능
 }

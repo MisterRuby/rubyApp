@@ -19,6 +19,6 @@ public class AccountDto {
     private String name;
     private String email;
     @Enumerated(EnumType.STRING)
-    private AccountRole accountRole;
+    private AccountRole role;
 
 }

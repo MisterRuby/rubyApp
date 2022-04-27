@@ -27,7 +27,7 @@ public class AccountListDto {
                         .id(account.getId())
                         .name(account.getName())
                         .email(account.getEmail())
-                        .accountRole(account.getRole())
+                        .role(account.getRole())
                         .build()
                 )
                 .collect(Collectors.toList());

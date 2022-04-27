@@ -1,5 +1,6 @@
 package ruby.rubyapp.board;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -21,6 +22,8 @@ public class BoardControllerBaseTest extends BoardBaseTest{
 
     @Autowired
     protected MockMvc mockMvc;
+    @Autowired
+    protected ObjectMapper objectMapper;
 
     protected MockHttpSession mockHttpSession;
 

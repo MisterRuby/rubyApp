@@ -5,21 +5,23 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.*;
 import ruby.rubyapp.account.dto.AccountDto;
 import ruby.rubyapp.account.dto.AccountListDto;
 import ruby.rubyapp.account.dto.AccountSearchDto;
 import ruby.rubyapp.account.entity.Account;
 import ruby.rubyapp.account.entity.AccountRole;
 import ruby.rubyapp.account.service.AccountService;
+import ruby.rubyapp.board.dto.BoardDto;
 import ruby.rubyapp.config.oauth.LoginAccount;
 import ruby.rubyapp.config.oauth.SessionAccount;
 
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -58,8 +60,6 @@ public class AccountController {
     public void logout() {
         httpSession.removeAttribute("account");
     }
-    
-    // TODO - 회원 목록 조회, 권한 수정
 
     /**
      * 회원 목록 조회
@@ -76,5 +76,27 @@ public class AccountController {
         AccountListDto accountListDto = new AccountListDto(accounts);
 
         return new ResponseEntity<>(accountListDto, HttpStatus.OK);
+    }
+
+    /**
+     * 권한 수정
+     * @param accountId         사용자 id
+     * @param accountDto        사용자 정보
+     * @param errors
+     * @param account
+     * @return
+     */
+    @PatchMapping("/accounts/{accountId}")
+    public ResponseEntity<AccountDto> updateAccount(
+            @PathVariable Long accountId, @RequestBody @Valid AccountDto accountDto, Errors errors, @LoginAccount SessionAccount account) {
+        if (!account.getAccountRole().equals(AccountRole.ADMIN) || errors.hasErrors() || !AccountRole.isExistRole(accountDto.getRole())) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
+        Optional<Account> optionalAccount = accountService.updateAccountRole(accountId, accountDto.getRole());
+        Long updatedId = optionalAccount.map(Account::getId).orElse(null);
+        accountDto = AccountDto.builder().id(updatedId).build();
+
+        return new ResponseEntity<>(accountDto, HttpStatus.OK);
     }
 }

@@ -3,7 +3,6 @@ package ruby.rubyapp.account.dto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ruby.rubyapp.account.entity.AccountRole;
 import ruby.rubyapp.account.entity.AccountSearchType;
 
 import javax.validation.constraints.Min;
