@@ -69,7 +69,7 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
     /**
      * 게시글 검색조건 설정
      * @param boardSearchType        검색 종류
-     * @param searchWord        검색어
+     * @param searchWord             검색어
      * @return
      */
     private BooleanExpression getBoardSearchCondition(BoardSearchType boardSearchType, String searchWord) {

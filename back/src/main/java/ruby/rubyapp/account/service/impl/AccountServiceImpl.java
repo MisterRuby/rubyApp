@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ruby.rubyapp.account.entity.Account;
 import ruby.rubyapp.account.entity.AccountRole;
+import ruby.rubyapp.account.entity.AccountSearchType;
 import ruby.rubyapp.account.repository.AccountRepository;
 import ruby.rubyapp.account.service.AccountService;
 
@@ -30,7 +31,7 @@ public class AccountServiceImpl implements AccountService {
      */
     @Override
     @Transactional(readOnly = true)
-    public Page<Account> getAccounts(AccountRole role, String searchWord, int pageNum) {
+    public Page<Account> getAccounts(AccountSearchType role, String searchWord, int pageNum) {
         int PAGE_PER_MAX_COUNT = 10;
         Pageable pageable = PageRequest.of(pageNum, PAGE_PER_MAX_COUNT, Sort.by(role.name()).descending());
 

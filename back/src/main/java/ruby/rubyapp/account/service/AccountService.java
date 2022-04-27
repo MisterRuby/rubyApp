@@ -3,6 +3,7 @@ package ruby.rubyapp.account.service;
 import org.springframework.data.domain.Page;
 import ruby.rubyapp.account.entity.Account;
 import ruby.rubyapp.account.entity.AccountRole;
+import ruby.rubyapp.account.entity.AccountSearchType;
 
 import java.util.Optional;
 
@@ -15,7 +16,7 @@ public interface AccountService {
      * @param pageNum               페이지 번호
      * @return
      */
-    Page<Account> getAccounts (AccountRole role, String searchWord, int pageNum);
+    Page<Account> getAccounts (AccountSearchType role, String searchWord, int pageNum);
 
     /**
      * 회원 권한 수정

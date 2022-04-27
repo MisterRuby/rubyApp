@@ -13,12 +13,14 @@ import java.io.Serializable;
  */
 @Getter
 public class SessionAccount implements Serializable {
-    private String name;
-    private String email;
+    private final Long id;
+    private final String name;
+    private final String email;
     @Enumerated(EnumType.STRING)
-    private AccountRole accountRole;
+    private final AccountRole accountRole;
 
     public SessionAccount(Account account) {
+        this.id = account.getId();
         this.name = account.getName();
         this.email = account.getEmail();
         this.accountRole = account.getRole();

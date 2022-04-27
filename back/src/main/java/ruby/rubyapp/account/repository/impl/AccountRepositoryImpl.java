@@ -28,7 +28,7 @@ public class AccountRepositoryImpl implements AccountRepositoryCustom {
      * @return
      */
     @Override
-    public Page<Account> getAccounts(AccountRole role, String searchWord, Pageable pageable) {
+    public Page<Account> getAccounts(AccountSearchType role, String searchWord, Pageable pageable) {
 
         Long size = queryFactory.select(account.count())
                 .from(account)
@@ -45,9 +45,20 @@ public class AccountRepositoryImpl implements AccountRepositoryCustom {
         return new PageImpl<>(accountList, pageable, size);
     }
 
+    public BooleanExpression getAccountSearchCondition(AccountSearchType role, String searchWord) {
+        if (AccountSearchType.ALL == role) {
+            return account.email.contains(searchWord);
+        }
+        if (AccountSearchType.ADMIN == role) {
+            return account.email.contains(searchWord).and(account.role.eq(AccountRole.ADMIN));
+        }
+        if (AccountSearchType.USER == role) {
+            return account.email.contains(searchWord).and(account.role.eq(AccountRole.USER));
+        }
+        if (AccountSearchType.BLOCK == role) {
+            return account.email.contains(searchWord).and(account.role.eq(AccountRole.BLOCK));
+        }
 
-
-    public BooleanExpression getAccountSearchCondition(AccountRole role, String searchWord) {
-        return account.email.contains(searchWord).and(account.role.eq(role));
+        return null;
     }
 }

@@ -15,5 +15,5 @@ public interface AccountRepositoryCustom {
      * @param pageable              페이징 객체
      * @return
      */
-    Page<Account> getAccounts (AccountRole role, String searchWord, Pageable pageable);
+    Page<Account> getAccounts (AccountSearchType role, String searchWord, Pageable pageable);
 }

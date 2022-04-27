@@ -1,73 +1,190 @@
 package ruby.rubyapp.account.controller;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.MockBeans;
-import org.springframework.test.web.servlet.MockMvc;
-import ruby.rubyapp.account.AccountBaseTest;
+import org.springframework.mock.web.MockHttpSession;
+import ruby.rubyapp.account.AccountControllerBaseTest;
 import ruby.rubyapp.account.entity.Account;
 import ruby.rubyapp.account.entity.AccountRole;
-import ruby.rubyapp.account.repository.AccountRepository;
 import ruby.rubyapp.config.oauth.CustomOAuth2UserService;
+import ruby.rubyapp.config.oauth.SessionAccount;
 
-import java.time.LocalDateTime;
+import javax.validation.constraints.Min;
+import java.util.Optional;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@AutoConfigureMockMvc
-@MockBeans({
-        @MockBean(CustomOAuth2UserService.class)
-})
-public class AccountControllerTest extends AccountBaseTest {
 
-    @Autowired
-    protected MockMvc mockMvc;
-    @Autowired
-    protected AccountRepository accountRepository;
-    @Autowired
-    protected AccountController accountController;
+public class AccountControllerTest extends AccountControllerBaseTest {
 
-    @BeforeAll
-    void setUp(){
-        initTestAccount();
+    MockHttpSession sessionAdminAccount() {
+        Optional<Account> accountOptional = accountRepository.findByEmail("test1@naver.com");
+
+        SessionAccount sessionAccount = new SessionAccount(accountOptional.get());
+        MockHttpSession mockHttpSession = new MockHttpSession();
+        mockHttpSession.setAttribute("account", sessionAccount);
+
+        return mockHttpSession;
     }
 
-    @AfterAll
-    void finish() {
-        accountRepository.deleteAll();
-    }
+    MockHttpSession sessionUserAccount() {
+        Optional<Account> accountOptional = accountRepository.findByEmail("test10@naver.com");
 
-    // 테스트 계정 생성
-    private void initTestAccount() {
-        for (int i = 1; i <= 112; i++) {
-            String name = "test" + i;
-            String email = name + "@naver.com";
-            Account account = Account.builder()
-                    .email(email)
-                    .name(name)
-                    .role(AccountRole.USER)
-                    .signUpDate(LocalDateTime.now())
-                    .build();
-            accountRepository.save(account);
-        }
+        SessionAccount sessionAccount = new SessionAccount(accountOptional.get());
+        MockHttpSession mockHttpSession = new MockHttpSession();
+        mockHttpSession.setAttribute("account", sessionAccount);
+
+        return mockHttpSession;
     }
 
     @Test
     @DisplayName("리다이렉트")
     public void login() throws Exception {
+        MockHttpSession session = sessionUserAccount();
         mockMvc.perform(
                 get("/")
+                .session(session)
                 .with(oauth2Login())
         )
                 .andDo(print())
                 .andExpect(status().is3xxRedirection());
+    }
+
+    @Test
+    @DisplayName("전체 사용자 목록 조회")
+    void getAccounts() throws Exception {
+        MockHttpSession session = sessionAdminAccount();
+        String role = "ALL";
+        String searchWord = "";
+        String pageNum = "11";
+
+        mockMvc.perform(
+                get("/accounts")
+                        .session(session)
+                        .with(oauth2Login())
+                        .param("role", role)
+                        .param("searchWord", searchWord)
+                        .param("pageNum", pageNum)
+        )
+                .andDo(print())
+                .andExpect(jsonPath("totalPages").value(12))
+                .andExpect(jsonPath("pageNum").value(11))
+                .andExpect(jsonPath("accountList.length()").value(2));
+    }
+
+
+    @Test
+    @DisplayName("관리자 목록 조회")
+    void getAdminAccounts() throws Exception {
+        MockHttpSession session = sessionAdminAccount();
+        String role = "ADMIN";
+        String searchWord = "";
+        String pageNum = "0";
+
+        mockMvc.perform(
+                get("/accounts")
+                .session(session)
+                .with(oauth2Login())
+                .param("role", role)
+                .param("searchWord", searchWord)
+                .param("pageNum", pageNum)
+        )
+                .andDo(print())
+                .andExpect(jsonPath("totalPages").value(1))
+                .andExpect(jsonPath("pageNum").value(0))
+                .andExpect(jsonPath("accountList.length()").value(9));
+    }
+
+    @Test
+    @DisplayName("일반 사용자 목록 조회")
+    void getUserAccounts() throws Exception {
+        MockHttpSession session = sessionAdminAccount();
+        String role = "USER";
+        String searchWord = "";
+        String pageNum = "10";
+
+        mockMvc.perform(
+                get("/accounts")
+                        .session(session)
+                        .with(oauth2Login())
+                        .param("role", role)
+                        .param("searchWord", searchWord)
+                        .param("pageNum", pageNum)
+        )
+                .andDo(print())
+                .andExpect(jsonPath("totalPages").value(11))
+                .andExpect(jsonPath("pageNum").value(10))
+                .andExpect(jsonPath("accountList.length()").value(1));
+    }
+
+    @Test
+    @DisplayName("일반 사용자 목록 조회")
+    void getBlockAccounts() throws Exception {
+        MockHttpSession session = sessionAdminAccount();
+        String role = "BLOCK";
+        String searchWord = "";
+        String pageNum = "0";
+
+        mockMvc.perform(
+                get("/accounts")
+                        .session(session)
+                        .with(oauth2Login())
+                        .param("role", role)
+                        .param("searchWord", searchWord)
+                        .param("pageNum", pageNum)
+        )
+                .andDo(print())
+                .andExpect(jsonPath("totalPages").value(1))
+                .andExpect(jsonPath("pageNum").value(0))
+                .andExpect(jsonPath("accountList.length()").value(2));
+    }
+
+    @Test
+    @DisplayName("검색어를 포함한 이메일을 사용하는 관리자 목록 조회")
+    void getAccountsByEmail() throws Exception {
+        MockHttpSession session = sessionAdminAccount();
+        String role = "ADMIN";
+        String searchWord = "st7";
+        String pageNum = "0";
+
+        mockMvc.perform(
+                get("/accounts")
+                        .session(session)
+                        .with(oauth2Login())
+                        .param("role", role)
+                        .param("searchWord", searchWord)
+                        .param("pageNum", pageNum)
+        )
+                .andDo(print())
+                .andExpect(jsonPath("totalPages").value(1))
+                .andExpect(jsonPath("pageNum").value(0))
+                .andExpect(jsonPath("accountList.length()").value(1));
+    }
+
+    @Test
+    @DisplayName("관리자 권한이 아닌 계정으로 조회")
+    void getAccountsByNotAdmin() throws Exception {
+        MockHttpSession session = sessionUserAccount();
+        String role = "USER";
+        String searchWord = "";
+        String pageNum = "0";
+
+        mockMvc.perform(
+                get("/accounts")
+                        .session(session)
+                        .with(oauth2Login())
+                        .param("role", role)
+                        .param("searchWord", searchWord)
+                        .param("pageNum", pageNum)
+        )
+                .andDo(print())
+                .andExpect(status().is4xxClientError());
     }
 }

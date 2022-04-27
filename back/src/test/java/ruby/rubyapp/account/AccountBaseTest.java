@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import ruby.rubyapp.account.controller.AccountController;
 import ruby.rubyapp.account.entity.Account;
 import ruby.rubyapp.account.entity.AccountRole;
 import ruby.rubyapp.account.repository.AccountRepository;
@@ -34,6 +35,8 @@ public class AccountBaseTest {
     protected AccountRepository accountRepository;
     @Autowired
     protected AccountService accountService;
+    @Autowired
+    protected AccountController accountController;
 
     @BeforeAll
     void setUp(){
@@ -46,7 +49,7 @@ public class AccountBaseTest {
     }
 
     // 테스트 계정 생성
-    private void initTestAccount() {
+    protected void initTestAccount() {
         for (int i = 1; i <= 112; i++) {
             String name = "test" + i;
             String email = name + "@naver.com";

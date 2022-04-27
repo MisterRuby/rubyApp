@@ -18,7 +18,7 @@ const BoardInfo = () : JSX.Element => {
     revalidateOnFocus : false
   });
 
-  const account : AccountType = useSWR(`${process.env.REACT_APP_SERVER_URL}/accounts`, fetcher, {
+  const account : AccountType = useSWR(`${process.env.REACT_APP_SERVER_URL}/accounts/check`, fetcher, {
     dedupingInterval : 1000 * 60 * 5,
   }).data;
 

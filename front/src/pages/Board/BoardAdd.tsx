@@ -16,7 +16,7 @@ const BoardAdd = () => {
   const [fileCount, setFileCount] = useState(0);
   const [fileSize, setFileSize] = useState(0);
 
-  const account : AccountType = useSWR(`${process.env.REACT_APP_SERVER_URL}/accounts`, fetcher, {
+  const account : AccountType = useSWR(`${process.env.REACT_APP_SERVER_URL}/accounts/check`, fetcher, {
     dedupingInterval : 1000 * 60 * 5,
   }).data;
 

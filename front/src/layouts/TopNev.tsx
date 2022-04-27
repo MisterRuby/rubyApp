@@ -17,7 +17,7 @@ const oAuthList = [
 ];
 
 const TopNev = () : JSX.Element => {
-  const {data, mutate} = useSWR(`${process.env.REACT_APP_SERVER_URL}/accounts`, fetcher, {
+  const {data, mutate} = useSWR(`${process.env.REACT_APP_SERVER_URL}/accounts/check`, fetcher, {
     dedupingInterval : 1000 * 60 * 5,
   });
 

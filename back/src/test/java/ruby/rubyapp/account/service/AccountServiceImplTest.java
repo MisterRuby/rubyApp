@@ -6,8 +6,7 @@ import org.springframework.data.domain.Page;
 import ruby.rubyapp.account.AccountBaseTest;
 import ruby.rubyapp.account.entity.Account;
 import ruby.rubyapp.account.entity.AccountRole;
-
-import java.util.Optional;
+import ruby.rubyapp.account.entity.AccountSearchType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -19,7 +18,7 @@ class AccountServiceImplTest extends AccountBaseTest {
     @Test
     @DisplayName("관리자 목록 조회")
     void getAccountListByAdmin() {
-        AccountRole accountRole = AccountRole.ADMIN;
+        AccountSearchType accountRole = AccountSearchType.ADMIN;
         String email = "";
         int pageNum = 0;
 
@@ -35,7 +34,7 @@ class AccountServiceImplTest extends AccountBaseTest {
     @Test
     @DisplayName("일반 사용자 목록 조회")
     void getAccountListByUser() {
-        AccountRole accountRole = AccountRole.USER;
+        AccountSearchType accountRole = AccountSearchType.USER;
         String email = "";
         int pageNum = 1;
 
@@ -51,7 +50,7 @@ class AccountServiceImplTest extends AccountBaseTest {
     @Test
     @DisplayName("사용정지된 사용자 목록 조회")
     void getAccountListByBlock() {
-        AccountRole accountRole = AccountRole.BLOCK;
+        AccountSearchType accountRole = AccountSearchType.BLOCK;
         String email = "";
         int pageNum = 0;
 
@@ -66,7 +65,7 @@ class AccountServiceImplTest extends AccountBaseTest {
     @Test
     @DisplayName("없는 이메일 주소로 검색")
     void getAccountListByWrongEmail() {
-        AccountRole accountRole = AccountRole.USER;
+        AccountSearchType accountRole = AccountSearchType.USER;
         String email = "wrong@naver.com";
         int pageNum = 0;
 
@@ -78,7 +77,7 @@ class AccountServiceImplTest extends AccountBaseTest {
     @Test
     @DisplayName("없는 페이지 번호로 조회")
     void getAccountListByWrongPageNum() {
-        AccountRole accountRole = AccountRole.BLOCK;
+        AccountSearchType accountRole = AccountSearchType.BLOCK;
         String email = "";
         int pageNum = 1;
 
